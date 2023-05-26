@@ -26,5 +26,12 @@ namespace AdminPresentationLayer.Controllers
 
             return View();
         }
+
+        public ActionResult PaginaTest()
+        {
+            ViewBag.Message = "Your test page.";
+
+            return View();
+        }
     }
 }
