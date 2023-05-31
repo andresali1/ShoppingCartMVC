@@ -18,13 +18,13 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <button type="button" class="btn btn-success">Crear Nuevo</button>
+                <button type="button" class="btn btn-success" onclick="OpenModal()">Crear Nuevo</button>
             </div>
         </div>
 
         <hr />
 
-        <table id="tabla" class="display cell-border" style="width: 100%;">
+        <table id="usersTable" class="display cell-border" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -40,10 +40,54 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Usuario</h5>
+                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body g-2">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="txtName" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="txtName">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtSurname" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="txtSurname">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="txtEmail" class="form-label">Correo</label>
+                        <input type="text" class="form-control" id="txtEmail">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="cbxActive" class="form-label">Activo</label>
+                        <select class="form-select" id="cbxActive">
+                            <option value="1">Si</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
-            $("#tabla").DataTable({
+            PopulateTable();
+        });
+
+        //Function to call all users and populate Users table
+        function PopulateTable() {
+            $("#usersTable").DataTable({
                 responsive: true,
                 ordering: false,
                 "ajax": {
@@ -71,14 +115,27 @@
                         }
                     },
                     {
-                        "defaultContent": '<button type="button" class="btn btn-primary btn-sm"><i class="fas fa-pen"></i></button>' +
+                        "defaultContent": '<button type="button" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-pen"></i></button>' +
                             '<button type="button" class="btn btn-danger btn-sm ms-2"><i class="fas fa-trash"></i></button>',
                         "orderable": false,
                         "searchable": false,
                         "width": "90px"
                     }
-                ]
+                ],
+                "language": {
+                    "url": 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json',
+                },
             });
+        }
+
+        //Function to open the Create/Edit Modal
+        function OpenModal() {
+            $("#FormModal").modal("show");
+        }
+
+        $("#usersTable tbody").on("click", '.btn-edit', function () {
+            let selectedRow = $(this).closest("tr");
+            let data = $("#usersTable").DataTable().row(selectedRow).data();
         });
     </script>
 }

@@ -9,7 +9,7 @@ INSERT INTO APP_USER(U_name, U_surname, Email, Pass) VALUES
 --('test 2', 'test 2', 'user2@example.com', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae')
 GO
 --
-UPDATE APP_USER SET Active = 0 WHERE UserId = 2
+--UPDATE APP_USER SET Active = 0 WHERE UserId = 2
 --
 
 
