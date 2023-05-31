@@ -1,7 +1,6 @@
-﻿using System;
+﻿using BusinessLayer;
+using EntityLayer;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace AdminPresentationLayer.Controllers
@@ -13,25 +12,18 @@ namespace AdminPresentationLayer.Controllers
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult Users()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Contact()
+        [HttpGet]
+        public JsonResult GetUsers()
         {
-            ViewBag.Message = "Your contact page.";
+            List<App_User> oList = new List<App_User>();
+            oList = new BL_User().GetUsers();
 
-            return View();
-        }
-
-        public ActionResult PaginaTest()
-        {
-            ViewBag.Message = "Your test page.";
-
-            return View();
+            return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
         }
     }
 }
