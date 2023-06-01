@@ -129,6 +129,34 @@ namespace DataLayer
 
                     result = Convert.ToBoolean(cmd.Parameters["Result"].Value);
                     Message = cmd.Parameters["Message"].Value.ToString();
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        public bool DeleteUser(int userId, out string Message)
+        {
+            bool result = false;
+            Message = string.Empty;
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("DELETE TOP(1) FROM APP_USER WHERE UserId = @UserId", oConnection);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConnection.Open();
+                    result = cmd.ExecuteNonQuery() > 0 ? true : false;
                 }
             }
             catch (Exception ex)
