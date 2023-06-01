@@ -19,14 +19,14 @@ namespace DataLayer
             try
             {
                 //using (SqlConnection oConection = new SqlConnection(Conection.connStr.Replace(@"\\", @"\")))
-                using (SqlConnection oConection = new SqlConnection(Conection.connStr))
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
                     string query = "SELECT UserId, U_name, U_surname, Email, Active FROM APP_USER";
 
-                    SqlCommand cmd = new SqlCommand(query, oConection);
+                    SqlCommand cmd = new SqlCommand(query, oConnection);
                     cmd.CommandType = CommandType.Text;
 
-                    oConection.Open();
+                    oConnection.Open();
 
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
@@ -42,6 +42,8 @@ namespace DataLayer
                             });
                         }
                     }
+
+                    oConnection.Close();
                 }
             }
             catch (Exception e)
@@ -50,6 +52,92 @@ namespace DataLayer
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// Method to Add a new user from admin page
+        /// </summary>
+        /// <param name="obj">App_User object type with the data</param>
+        /// <param name="Message">output param with message</param>
+        /// <returns></returns>
+        public int AddUser(App_User obj, out string Message)
+        {
+            int generatedId = 0;
+            Message = string.Empty;
+
+            try
+            {
+                using(SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("SP_INS_APP_USER", oConnection);
+                    cmd.Parameters.AddWithValue("U_name", obj.U_name);
+                    cmd.Parameters.AddWithValue("U_surname", obj.U_surname);
+                    cmd.Parameters.AddWithValue("Email", obj.Email);
+                    cmd.Parameters.AddWithValue("Pass", obj.Pass);
+                    cmd.Parameters.AddWithValue("Active", obj.Active);
+                    cmd.Parameters.Add("Message", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    oConnection.Open();
+
+                    cmd.ExecuteNonQuery();
+
+                    generatedId = Convert.ToInt32(cmd.Parameters["Result"].Value);
+                    Message = cmd.Parameters["Message"].Value.ToString();
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                generatedId = 0;
+                Message = ex.Message;
+            }
+
+            return generatedId;
+        }
+
+        /// <summary>
+        /// Method to edit an user from admin page
+        /// </summary>
+        /// <param name="obj">App_User object type with the data</param>
+        /// <param name="Message">output param with message</param>
+        /// <returns></returns>
+        public bool EditUser(App_User obj, out string Message)
+        {
+            bool result = false;
+            Message = string.Empty;
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("SP_UPD_APP_USER", oConnection);
+                    cmd.Parameters.AddWithValue("UserId", obj.UserId);
+                    cmd.Parameters.AddWithValue("U_name", obj.U_name);
+                    cmd.Parameters.AddWithValue("U_surname", obj.U_surname);
+                    cmd.Parameters.AddWithValue("Email", obj.Email);
+                    cmd.Parameters.AddWithValue("Active", obj.Active);
+                    cmd.Parameters.Add("Message", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
+                    cmd.Parameters.Add("Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    oConnection.Open();
+
+                    cmd.ExecuteNonQuery();
+
+                    result = Convert.ToBoolean(cmd.Parameters["Result"].Value);
+                    Message = cmd.Parameters["Message"].Value.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                Message = ex.Message;
+            }
+
+            return result;
         }
     }
 }
