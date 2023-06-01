@@ -18,7 +18,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <button type="button" class="btn btn-success" onclick="OpenModal()">Crear Nuevo</button>
+                <button type="button" class="btn btn-success" onclick="OpenModal(null)">Crear Nuevo</button>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
@@ -49,6 +49,7 @@
                 <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body g-2">
+                <input id="txtId" type="hidden" value="0"/>
                 <div class="row">
                     <div class="col-sm-6">
                         <label for="txtName" class="form-label">Nombre</label>
@@ -73,7 +74,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-primary" onclick="Save()">Guardar</button>
             </div>
         </div>
     </div>
@@ -81,6 +82,8 @@
 
 @section scripts{
     <script>
+        let selectedRow;
+
         $(document).ready(function () {
             PopulateTable();
         });
@@ -129,13 +132,48 @@
         }
 
         //Function to open the Create/Edit Modal
-        function OpenModal() {
+        function OpenModal(json) {
+            if (json != null) {
+                $("#txtId").val(json.UserId);
+                $("#txtName").val(json.U_name);
+                $("#txtSurname").val(json.U_surname);
+                $("#txtEmail").val(json.Email);
+                $("#cbxActive").val(json.Active == true ? 1 : 0);
+            } else {
+                $("#txtId").val(0);
+                $("#txtName").val("");
+                $("#txtSurname").val("");
+                $("#txtEmail").val("");
+                $("#cbxActive").val(1);
+            }
+
             $("#FormModal").modal("show");
         }
 
+        //Funcion called by onclick event to edit user
         $("#usersTable tbody").on("click", '.btn-edit', function () {
-            let selectedRow = $(this).closest("tr");
+            selectedRow = $(this).closest("tr");
             let data = $("#usersTable").DataTable().row(selectedRow).data();
+            OpenModal(data);
         });
+
+        //Function to send data to DB
+        function Save() {
+            var User = {
+                UserId: $("#txtId").val(),
+                U_name: $("#txtName").val(),
+                U_surname: $("#txtSurname").val(),
+                Email: $("#txtEmail").val(),
+                Active: $("#cbxActive").val() == 1 ? true : false
+            }
+
+            if (User.UserId == 0) {
+                $("#usersTable").DataTable().row.add(User).draw(false);
+            } else {
+                $("#usersTable").DataTable().row(selectedRow).data(User).draw(false);
+            }
+
+            $("#FormModal").modal("hide");
+        }
     </script>
 }
