@@ -8,6 +8,10 @@ namespace DataLayer
 {
     public class DL_User
     {
+        /// <summary>
+        /// Method to get all users in db
+        /// </summary>
+        /// <returns></returns>
         public List<App_User> GetUsers()
         {
             List<App_User> list = new List<App_User>();

@@ -17,6 +17,10 @@ namespace AdminPresentationLayer.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Method to get all users in db
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public JsonResult GetUsers()
         {
