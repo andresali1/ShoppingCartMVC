@@ -182,6 +182,8 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
+                    $(".modal-dialog").LoadingOverlay("hide");
+
                     //New User
                     if (User.UserId == 0) {
                         if (data.result != 0) {
@@ -192,8 +194,8 @@
 
                             $("#FormModal").modal("hide");
                         } else {
-                            $("#errorMessage").show();
                             $("#errorMessage").text(data.message);
+                            $("#errorMessage").show();
                         }
                     //Edit User
                     } else {
@@ -205,16 +207,25 @@
                             selectedRow = null;
                             $("#FormModal").modal("hide");
                         } else {
-                            $("#errorMessage").show();
                             $("#errorMessage").text(data.message);
+                            $("#errorMessage").show();
                         }
                     }
                 },
                 error: function (error) {
-                    console.log(error);
+                    $(".modal-dialog").LoadingOverlay("hide");
+
+                    $("#errorMessage").text("Request Error!");
+                    $("#errorMessage").show();
                 },
                 beforeSend: function () {
-
+                    $(".modal-dialog").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 14,
+                        image: "",
+                        fontawesome: "fa fa-cog fa-spin"
+                    });
                 }
             });            
         }
