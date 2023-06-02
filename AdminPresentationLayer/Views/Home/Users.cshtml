@@ -48,20 +48,20 @@
                 <h5 class="modal-title" id="exampleModalLabel">Usuario</h5>
                 <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body g-2">
+            <div class="modal-body">
                 <input id="txtId" type="hidden" value="0"/>
-                <div class="row">
+                <div class="row g-2">
                     <div class="col-sm-6">
                         <label for="txtName" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="txtName">
+                        <input type="text" class="form-control" id="txtName" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
                         <label for="txtSurname" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="txtSurname">
+                        <input type="text" class="form-control" id="txtSurname" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
                         <label for="txtEmail" class="form-label">Correo</label>
-                        <input type="text" class="form-control" id="txtEmail">
+                        <input type="text" class="form-control" id="txtEmail" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
                         <label for="cbxActive" class="form-label">Activo</label>
@@ -69,6 +69,12 @@
                             <option value="1">Si</option>
                             <option value="0">No</option>
                         </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div id="errorMessage" class="alert alert-danger" role="alert">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,6 +153,8 @@
                 $("#cbxActive").val(1);
             }
 
+            $("#errorMessage").hide();
+
             $("#FormModal").modal("show");
         }
 
@@ -167,13 +175,48 @@
                 Active: $("#cbxActive").val() == 1 ? true : false
             }
 
-            if (User.UserId == 0) {
-                $("#usersTable").DataTable().row.add(User).draw(false);
-            } else {
-                $("#usersTable").DataTable().row(selectedRow).data(User).draw(false);
-            }
+            jQuery.ajax({
+                url: '@Url.Action("SaveUser", "Home")',
+                type: "POST",
+                data: JSON.stringify({ obj : User }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    //New User
+                    if (User.UserId == 0) {
+                        if (data.result != 0) {
+                            $("#errorMessage").hide();
 
-            $("#FormModal").modal("hide");
+                            User.UserId = data.result;
+                            $("#usersTable").DataTable().row.add(User).draw(false);
+
+                            $("#FormModal").modal("hide");
+                        } else {
+                            $("#errorMessage").show();
+                            $("#errorMessage").text(data.message);
+                        }
+                    //Edit User
+                    } else {
+                        if (data.result == true) {
+                            $("#errorMessage").hide();
+
+                            $("#usersTable").DataTable().row(selectedRow).data(User).draw(false);
+
+                            selectedRow = null;
+                            $("#FormModal").modal("hide");
+                        } else {
+                            $("#errorMessage").show();
+                            $("#errorMessage").text(data.message);
+                        }
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                },
+                beforeSend: function () {
+
+                }
+            });            
         }
     </script>
 }

@@ -29,5 +29,23 @@ namespace AdminPresentationLayer.Controllers
 
             return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult SaveUser(App_User obj)
+        {
+            object result;
+            string message = string.Empty;
+
+            if(obj.UserId == 0)
+            {
+                result = new BL_User().AddUser(obj, out message);
+            }
+            else
+            {
+                result = new BL_User().EditUser(obj, out message);
+            }
+
+            return Json(new { result, message }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

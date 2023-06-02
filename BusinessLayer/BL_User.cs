@@ -85,5 +85,16 @@ namespace BusinessLayer
                 return false;
             }
         }
+
+        /// <summary>
+        /// Method to delete an User from admin page
+        /// </summary>
+        /// <param name="userId">User Id</param>
+        /// <param name="Message">output param with message</param>
+        /// <returns></returns>
+        public bool DeleteUser(int userId, out string Message)
+        {
+            return oDataLayer.DeleteUser(userId, out Message);
+        }
     }
 }

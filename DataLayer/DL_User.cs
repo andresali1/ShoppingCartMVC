@@ -142,6 +142,12 @@ namespace DataLayer
             return result;
         }
 
+        /// <summary>
+        /// Method to delete an User from admin page
+        /// </summary>
+        /// <param name="userId">User Id</param>
+        /// <param name="Message">output param with message</param>
+        /// <returns></returns>
         public bool DeleteUser(int userId, out string Message)
         {
             bool result = false;
@@ -156,7 +162,10 @@ namespace DataLayer
                     cmd.CommandType = CommandType.Text;
 
                     oConnection.Open();
+
                     result = cmd.ExecuteNonQuery() > 0 ? true : false;
+
+                    oConnection.Close();
                 }
             }
             catch (Exception ex)
