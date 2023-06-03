@@ -30,6 +30,11 @@ namespace AdminPresentationLayer.Controllers
             return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
         }
 
+        /// <summary>
+        /// Method to save an user in DB, Created or edited
+        /// </summary>
+        /// <param name="obj">Object with the user's data</param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult SaveUser(App_User obj)
         {
@@ -46,6 +51,22 @@ namespace AdminPresentationLayer.Controllers
             }
 
             return Json(new { result, message }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to delete an user from Admin page
+        /// </summary>
+        /// <param name="userId">user's Id</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult DeleteUser(int userId)
+        {
+            bool response = false;
+            string message = string.Empty;
+
+            response = new BL_User().DeleteUser(userId, out message);
+
+            return Json(new { result = response, message }, JsonRequestBehavior.AllowGet);
         }
     }
 }

@@ -49,7 +49,7 @@
                 <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input id="txtId" type="hidden" value="0"/>
+                <input id="txtId" type="hidden" value="0" />
                 <div class="row g-2">
                     <div class="col-sm-6">
                         <label for="txtName" class="form-label">Nombre</label>
@@ -125,7 +125,7 @@
                     },
                     {
                         "defaultContent": '<button type="button" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-pen"></i></button>' +
-                            '<button type="button" class="btn btn-danger btn-sm ms-2"><i class="fas fa-trash"></i></button>',
+                            '<button type="button" class="btn btn-danger btn-sm ms-2 btn-delete"><i class="fas fa-trash"></i></button>',
                         "orderable": false,
                         "searchable": false,
                         "width": "90px"
@@ -163,6 +163,54 @@
             selectedRow = $(this).closest("tr");
             let data = $("#usersTable").DataTable().row(selectedRow).data();
             OpenModal(data);
+        });
+
+        //Funcion called by onclick event to delete user
+        $("#usersTable tbody").on("click", '.btn-delete', function () {
+            let selectedUser = $(this).closest("tr");
+            let data = $("#usersTable").DataTable().row(selectedUser).data();
+
+            swal({
+                title: "Está Seguro?",
+                text: "¿Desea eliminar el usuario?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-primary",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: true
+            },
+                function () {
+                    jQuery.ajax({
+                        url: '@Url.Action("DeleteUser", "Home")',
+                        type: "POST",
+                        data: JSON.stringify({ userId: data.UserId }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            $(".main-body").LoadingOverlay("hide");
+                            if (data.result) {
+                                $("#usersTable").DataTable().row(selectedUser).remove().draw();
+                            } else {
+                                swal("No se puede eliminar", data.message, "error");
+                            }
+                        },
+                        error: function (error) {
+                            $(".main-body").LoadingOverlay("hide");
+                            swal("No se pudo eliminar", "Request Error!", "error");
+                        },
+                        beforeSend: function () {
+                            $(".main-body").LoadingOverlay("show", {
+                                imageResizeFactor: 2,
+                                text: "Cargando...",
+                                size: 14,
+                                image: "",
+                                fontawesome: "fa fa-cog fa-spin"
+                            });
+                        }
+                    });
+                }
+            );
         });
 
         //Function to send data to DB and Update the View's table
@@ -227,7 +275,7 @@
                         fontawesome: "fa fa-cog fa-spin"
                     });
                 }
-            });            
+            });
         }
     </script>
 }
