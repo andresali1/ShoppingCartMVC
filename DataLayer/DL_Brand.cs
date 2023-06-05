@@ -6,21 +6,21 @@ using System.Data;
 
 namespace DataLayer
 {
-    public class DL_Category
+    public class DL_Brand
     {
         /// <summary>
-        /// Method to get all categories in db
+        /// Method to get all brands in db
         /// </summary>
         /// <returns></returns>
-        public List<Category> GetCategories()
+        public List<Brand> GetBrands()
         {
-            List<Category> list = new List<Category>();
+            List<Brand> list = new List<Brand>();
 
             try
             {
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
-                    string query = "SELECT CategoryId, C_description, Active FROM CATEGORY";
+                    string query = "SELECT BrandId, B_description, Active FROM BRAND";
 
                     SqlCommand cmd = new SqlCommand(query, oConnection);
                     cmd.CommandType = CommandType.Text;
@@ -31,10 +31,10 @@ namespace DataLayer
                     {
                         while (dr.Read())
                         {
-                            list.Add(new Category()
+                            list.Add(new Brand()
                             {
-                                CategoryId = Convert.ToInt32(dr["CategoryId"])
-                                ,C_description = dr["C_description"].ToString()
+                                BrandId = Convert.ToInt32(dr["BrandId"])
+                                ,B_description = dr["B_description"].ToString()
                                 ,Active = Convert.ToBoolean(dr["Active"])
                             });
                         }
@@ -45,19 +45,19 @@ namespace DataLayer
             }
             catch (Exception e)
             {
-                list = new List<Category>();
+                list = new List<Brand>();
             }
 
             return list;
         }
 
         /// <summary>
-        /// Method to Add a new Category from admin page
+        /// Method to Add a new Brand from admin page
         /// </summary>
-        /// <param name="obj">Category object type with the data</param>
+        /// <param name="obj">Brand object type with the data</param>
         /// <param name="Message">output param with message</param>
         /// <returns></returns>
-        public int AddCategory(Category obj, out string Message)
+        public int AddBrand(Brand obj, out string Message)
         {
             int generatedId = 0;
             Message = string.Empty;
@@ -66,8 +66,8 @@ namespace DataLayer
             {
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
-                    SqlCommand cmd = new SqlCommand("SP_INS_CATEGORY", oConnection);
-                    cmd.Parameters.AddWithValue("C_description", obj.C_description);
+                    SqlCommand cmd = new SqlCommand("SP_INS_BRAND", oConnection);
+                    cmd.Parameters.AddWithValue("B_description", obj.B_description);
                     cmd.Parameters.AddWithValue("Active", obj.Active);
                     cmd.Parameters.Add("Message", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Result", SqlDbType.Int).Direction = ParameterDirection.Output;
@@ -93,12 +93,12 @@ namespace DataLayer
         }
 
         /// <summary>
-        /// Method to edit a Category from admin page
+        /// Method to edit a Brand from admin page
         /// </summary>
-        /// <param name="obj">Category object type with the data</param>
+        /// <param name="obj">Brand object type with the data</param>
         /// <param name="Message">output param with message</param>
         /// <returns></returns>
-        public bool EditCategory(Category obj, out string Message)
+        public bool EditBrand(Brand obj, out string Message)
         {
             bool result = false;
             Message = string.Empty;
@@ -107,9 +107,9 @@ namespace DataLayer
             {
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
-                    SqlCommand cmd = new SqlCommand("SP_UPD_CATEGORY", oConnection);
-                    cmd.Parameters.AddWithValue("CategoryId", obj.CategoryId);
-                    cmd.Parameters.AddWithValue("C_description", obj.C_description);
+                    SqlCommand cmd = new SqlCommand("SP_UPD_BRAND", oConnection);
+                    cmd.Parameters.AddWithValue("BrandId", obj.BrandId);
+                    cmd.Parameters.AddWithValue("B_description", obj.B_description);
                     cmd.Parameters.AddWithValue("Active", obj.Active);
                     cmd.Parameters.Add("Message", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Result", SqlDbType.Int).Direction = ParameterDirection.Output;
@@ -135,12 +135,12 @@ namespace DataLayer
         }
 
         /// <summary>
-        /// Method to delete a Category from admin page
+        /// Method to delete a Brand from admin page
         /// </summary>
-        /// <param name="categoryId">Category Id</param>
+        /// <param name="brandId">Brand Id</param>
         /// <param name="Message">output param with message</param>
         /// <returns></returns>
-        public bool DeleteCategory(int categoryId, out string Message)
+        public bool DeleteBrand(int brandId, out string Message)
         {
             bool result = false;
             Message = string.Empty;
@@ -149,8 +149,8 @@ namespace DataLayer
             {
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
-                    SqlCommand cmd = new SqlCommand("SP_DEL_CATEGORY", oConnection);
-                    cmd.Parameters.AddWithValue("CategoryId", categoryId);
+                    SqlCommand cmd = new SqlCommand("SP_DEL_BRAND", oConnection);
+                    cmd.Parameters.AddWithValue("BrandId", brandId);
                     cmd.Parameters.Add("Message", SqlDbType.VarChar, 500).Direction = ParameterDirection.Output;
                     cmd.Parameters.Add("Result", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.CommandType = CommandType.StoredProcedure;

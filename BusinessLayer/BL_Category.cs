@@ -74,7 +74,7 @@ namespace BusinessLayer
         /// <summary>
         /// Method to delete a Category from admin page
         /// </summary>
-        /// <param name="userId">Category Id</param>
+        /// <param name="categoryId">Category Id</param>
         /// <param name="Message">output param with message</param>
         /// <returns></returns>
         public bool DeleteCategory(int categoryId, out string Message)

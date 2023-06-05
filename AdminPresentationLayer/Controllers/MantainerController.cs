@@ -23,6 +23,8 @@ namespace AdminPresentationLayer.Controllers
             return View();
         }
 
+        /******************** CATEGORY ********************/
+        #region Category
         /// <summary>
         /// Method to get all categories in db
         /// </summary>
@@ -74,5 +76,61 @@ namespace AdminPresentationLayer.Controllers
 
             return Json(new { result = response, message }, JsonRequestBehavior.AllowGet);
         }
+        #endregion
+
+        /******************** BRAND ********************/
+        #region Brand
+        /// <summary>
+        /// Method to get all brands in db
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult GetBrands()
+        {
+            List<Brand> oList = new List<Brand>();
+            oList = new BL_Brand().GetBrands();
+
+            return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to save a Brand in DB, Created or edited
+        /// </summary>
+        /// <param name="obj">Object with the brand's data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult SaveBrand(Brand obj)
+        {
+            object result;
+            string message = string.Empty;
+
+            if (obj.BrandId == 0)
+            {
+                result = new BL_Brand().AddBrand(obj, out message);
+            }
+            else
+            {
+                result = new BL_Brand().EditBrand(obj, out message);
+            }
+
+            return Json(new { result, message }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to delete a Brand from Admin page
+        /// </summary>
+        /// <param name="brandId">brand's Id</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult DeleteBrand(int brandId)
+        {
+            bool response = false;
+            string message = string.Empty;
+
+            response = new BL_Brand().DeleteBrand(brandId, out message);
+
+            return Json(new { result = response, message }, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

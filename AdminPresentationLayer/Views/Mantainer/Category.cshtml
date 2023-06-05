@@ -17,7 +17,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                <button type="button" class="btn btn-success" onclick="OpenModal(null)">Crear Nuevo</button>
+                <button type="button" class="btn btn-success" onclick="OpenModal(null)">Crear Nueva</button>
             </div>
         </div>
 
@@ -27,7 +27,7 @@
             <thead>
                 <tr>
                     <th>Descripción</th>
-                    <th>Activo</th>
+                    <th>Activa</th>
                     <th></th>
                 </tr>
             </thead>
@@ -53,7 +53,7 @@
                         <input type="text" class="form-control" id="txtDescription" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
-                        <label for="cbxActive" class="form-label">Activo</label>
+                        <label for="cbxActive" class="form-label">Activa</label>
                         <select class="form-select" id="cbxActive">
                             <option value="1">Si</option>
                             <option value="0">No</option>
@@ -137,14 +137,14 @@
             $("#FormModal").modal("show");
         }
 
-        //Funcion called by onclick event to edit user
+        //Funcion called by onclick event to edit Category
         $("#categoriesTable tbody").on("click", '.btn-edit', function () {
             selectedRow = $(this).closest("tr");
             let data = $("#categoriesTable").DataTable().row(selectedRow).data();
             OpenModal(data);
         });
 
-        //Funcion called by onclick event to delete user
+        //Funcion called by onclick event to delete Category
         $("#categoriesTable tbody").on("click", '.btn-delete', function () {
             let selectedCategory = $(this).closest("tr");
             let data = $("#categoriesTable").DataTable().row(selectedCategory).data();
@@ -209,7 +209,7 @@
                 success: function (data) {
                     $(".modal-dialog").LoadingOverlay("hide");
 
-                    //New User
+                    //New Category
                     if (Category.CategoryId == 0) {
                         if (data.result != 0) {
                             $("#errorMessage").hide();
@@ -222,7 +222,7 @@
                             $("#errorMessage").text(data.message);
                             $("#errorMessage").show();
                         }
-                    //Edit User
+                    //Edit Category
                     } else {
                         if (data.result == true) {
                             $("#errorMessage").hide();
