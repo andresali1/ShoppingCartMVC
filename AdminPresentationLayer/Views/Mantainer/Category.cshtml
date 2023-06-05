@@ -4,5 +4,255 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Category</h2>
+<ol class="breadcrumb mb-4 mt-4">
+    <li class="breadcrumb-item"><a href="index.html">Mantenimiento</a></li>
+    <li class="breadcrumb-item active">Categorías</li>
+</ol>
 
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users me-1"></i> Lista de Categorías
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <button type="button" class="btn btn-success" onclick="OpenModal(null)">Crear Nuevo</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <table id="categoriesTable" class="display cell-border" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Activo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="FormModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Categoría</h5>
+                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input id="txtId" type="hidden" value="0" />
+                <div class="row g-2">
+                    <div class="col-sm-6">
+                        <label for="txtDescription" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="txtDescription" autocomplete="off">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="cbxActive" class="form-label">Activo</label>
+                        <select class="form-select" id="cbxActive">
+                            <option value="1">Si</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div id="errorMessage" class="alert alert-danger" role="alert">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="Save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        let selectedRow;
+
+        $(document).ready(function () {
+            PopulateTable();
+        });
+
+        //Function to call all categories and populate Categories table
+        function PopulateTable() {
+            $("#categoriesTable").DataTable({
+                responsive: true,
+                ordering: false,
+                "ajax": {
+                    url: '@Url.Action("GetCategories", "Mantainer")',
+                    type: "GET",
+                    dataType: "json"
+                },
+                "columns": [
+                    {
+                        "data": "C_description"
+                    },
+                    {
+                        "data": "Active", "render": function (value) {
+                            if (value) {
+                                return '<span class="badge bg-success">Si</span>';
+                            } else {
+                                return '<span class="badge bg-danger">No</span>';
+                            }
+                        }
+                    },
+                    {
+                        "defaultContent": '<button type="button" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-pen"></i></button>' +
+                            '<button type="button" class="btn btn-danger btn-sm ms-2 btn-delete"><i class="fas fa-trash"></i></button>',
+                        "orderable": false,
+                        "searchable": false,
+                        "width": "90px"
+                    }
+                ],
+                "language": {
+                    "url": 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json',
+                },
+            });
+        }
+
+        //Function to open the Create/Edit Modal
+        function OpenModal(json) {
+            if (json != null) {
+                $("#txtId").val(json.CategoryId);
+                $("#txtDescription").val(json.C_description);
+                $("#cbxActive").val(json.Active == true ? 1 : 0);
+            } else {
+                $("#txtId").val(0);
+                $("#txtDescription").val("");
+                $("#cbxActive").val(1);
+            }
+
+            $("#errorMessage").hide();
+
+            $("#FormModal").modal("show");
+        }
+
+        //Funcion called by onclick event to edit user
+        $("#categoriesTable tbody").on("click", '.btn-edit', function () {
+            selectedRow = $(this).closest("tr");
+            let data = $("#categoriesTable").DataTable().row(selectedRow).data();
+            OpenModal(data);
+        });
+
+        //Funcion called by onclick event to delete user
+        $("#categoriesTable tbody").on("click", '.btn-delete', function () {
+            let selectedCategory = $(this).closest("tr");
+            let data = $("#categoriesTable").DataTable().row(selectedCategory).data();
+
+            swal({
+                title: "Está Seguro?",
+                text: "¿Desea eliminar la categoría?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-primary",
+                confirmButtonText: "Si",
+                cancelButtonText: "No",
+                closeOnConfirm: true
+            },
+                function () {
+                    jQuery.ajax({
+                        url: '@Url.Action("DeleteCategory", "Mantainer")',
+                        type: "POST",
+                        data: JSON.stringify({ categoryId: data.CategoryId }),
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            $(".main-body").LoadingOverlay("hide");
+                            if (data.result) {
+                                $("#categoriesTable").DataTable().row(selectedCategory).remove().draw();
+                            } else {
+                                swal("No se puede eliminar", data.message, "error");
+                            }
+                        },
+                        error: function (error) {
+                            $(".main-body").LoadingOverlay("hide");
+                            swal("No se pudo eliminar", "Request Error!", "error");
+                        },
+                        beforeSend: function () {
+                            $(".main-body").LoadingOverlay("show", {
+                                imageResizeFactor: 2,
+                                text: "Cargando...",
+                                size: 14,
+                                image: "",
+                                fontawesome: "fa fa-cog fa-spin"
+                            });
+                        }
+                    });
+                }
+            );
+        });
+
+        //Function to send data to DB and Update the View's table
+        function Save() {
+            var Category = {
+                CategoryId: $("#txtId").val(),
+                C_description: $("#txtDescription").val(),
+                Active: $("#cbxActive").val() == 1 ? true : false
+            }
+
+            jQuery.ajax({
+                url: '@Url.Action("SaveCategory", "Mantainer")',
+                type: "POST",
+                data: JSON.stringify({ obj: Category }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(".modal-dialog").LoadingOverlay("hide");
+
+                    //New User
+                    if (Category.CategoryId == 0) {
+                        if (data.result != 0) {
+                            $("#errorMessage").hide();
+
+                            Category.CategoryId = data.result;
+                            $("#categoriesTable").DataTable().row.add(Category).draw(false);
+
+                            $("#FormModal").modal("hide");
+                        } else {
+                            $("#errorMessage").text(data.message);
+                            $("#errorMessage").show();
+                        }
+                    //Edit User
+                    } else {
+                        if (data.result == true) {
+                            $("#errorMessage").hide();
+
+                            $("#categoriesTable").DataTable().row(selectedRow).data(Category).draw(false);
+
+                            selectedRow = null;
+                            $("#FormModal").modal("hide");
+                        } else {
+                            $("#errorMessage").text(data.message);
+                            $("#errorMessage").show();
+                        }
+                    }
+                },
+                error: function (error) {
+                    $(".modal-dialog").LoadingOverlay("hide");
+
+                    $("#errorMessage").text("Request Error!");
+                    $("#errorMessage").show();
+                },
+                beforeSend: function () {
+                    $(".modal-dialog").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 14,
+                        image: "",
+                        fontawesome: "fa fa-cog fa-spin"
+                    });
+                }
+            });
+        }
+    </script>
+}

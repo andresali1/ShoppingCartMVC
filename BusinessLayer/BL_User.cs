@@ -42,10 +42,24 @@ namespace BusinessLayer
 
             if (string.IsNullOrEmpty(Message))
             {
-                string pass = "test123";
-                obj.Pass = BL_Resources.Sha256Converter(pass);
+                string pass = BL_Resources.GeneratePass();
 
-                return oDataLayer.AddUser(obj, out Message);
+                string subject = "Creación de Cuenta CarritoC";
+                string email_message = "<h3>Su cuenta fue creada correctamente</h3></br><p>Su contraseña para acceder es: !pass!</p>";
+                email_message = email_message.Replace("!pass!", pass);
+
+                bool response = BL_Resources.SendEmail(obj.Email, subject, email_message);
+
+                if (response)
+                {
+                    obj.Pass = BL_Resources.Sha256Converter(pass);
+                    return oDataLayer.AddUser(obj, out Message);
+                }
+                else
+                {
+                    Message = "No se pudo enviar el correo";
+                    return 0;
+                }
             }
             else
             {
