@@ -58,7 +58,7 @@
                             <img id="product_img" height="197" width="200" class="cell-border rounded mx-auto d-block img-fluid" />
                         </div>
                         <div class="mb-2">
-                            <input class="form-control" type="file" id="productFile" accept="image/png, image/jpg, image/jpeg" onchange="" />
+                            <input class="form-control" type="file" id="productFile" accept="image/png, image/jpg, image/jpeg" onchange="ShowImage(this)" />
                         </div>
                     </div>
                     <div class="col-sm-3">
@@ -118,13 +118,24 @@
 </div>
 
 @section scripts{
-    @*
     <script>
         let selectedRow;
 
         $(document).ready(function () {
             PopulateTable();
         });
+
+        function ShowImage(input) {
+            if (input.files) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $("#product_img").attr("src", e.target.result).width(200).height(197);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
         //Function to call all brands and populate Brands table
         function PopulateTable() {
@@ -298,5 +309,4 @@
             });
         }
     </script>
-    *@
 }
