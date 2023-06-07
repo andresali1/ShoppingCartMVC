@@ -123,11 +123,14 @@
 
         $(document).ready(function () {
             PopulateTable();
+            PopulateBrandSelect();
+            PopulateCategorySelect();
         });
 
+        //Function that shows the uploaded image in the modal
         function ShowImage(input) {
             if (input.files) {
-                var reader = new FileReader();
+                let reader = new FileReader();
 
                 reader.onload = function (e) {
                     $("#product_img").attr("src", e.target.result).width(200).height(197);
@@ -139,17 +142,36 @@
 
         //Function to call all brands and populate Brands table
         function PopulateTable() {
-            $("#brandsTable").DataTable({
+            $("#productsTable").DataTable({
                 responsive: true,
                 ordering: false,
                 "ajax": {
-                    url: '@Url.Action("GetBrands", "Mantainer")',
+                    url: '@Url.Action("GetProducts", "Mantainer")',
                     type: "GET",
                     dataType: "json"
                 },
                 "columns": [
                     {
-                        "data": "B_description"
+                        "data": "P_name"
+                    },
+                    {
+                        "data": "P_description"
+                    },
+                    {
+                        "data": "oBrand", "render": function (data) {
+                            return data.B_description
+                        }
+                    },
+                    {
+                        "data": "oCategory", "render": function (data) {
+                            return data.C_description
+                        }
+                    },
+                    {
+                        "data": "Price"
+                    },
+                    {
+                        "data": "Stock"
                     },
                     {
                         "data": "Active", "render": function (value) {
@@ -174,38 +196,154 @@
             });
         }
 
+        //Function to populate Brand Select
+        function PopulateBrandSelect() {
+            jQuery.ajax({
+                url: '@Url.Action("GetBrands", "Mantainer")',
+                type: "GET",
+                data: null,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("<option>").attr({ "value": "0", "disabled": "true" }).text("Seleccionar").appendTo("#cbxBrand");
+
+                    $.each(data.data, function (index, item) {
+                        $("<option>").attr({ "value": item.BrandId }).text(item.B_description).appendTo("#cbxBrand");
+                    })
+                },
+                error: function (error) {
+                    swal("No se pudo consultar Marcas", "Request Error!", "error");
+                }
+            });
+        }
+
+        //Function to populate Category Select
+        function PopulateCategorySelect() {
+            jQuery.ajax({
+                url: '@Url.Action("GetCategories", "Mantainer")',
+                type: "GET",
+                data: null,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $("<option>").attr({ "value": "0", "disabled": "true" }).text("Seleccionar").appendTo("#cbxCategory");
+
+                    $.each(data.data, function (index, item) {
+                        $("<option>").attr({ "value": item.CategoryId }).text(item.C_description).appendTo("#cbxCategory");
+                    })
+                },
+                error: function (error) {
+                    swal("No se pudo consultar Categorías", "Request Error!", "error");
+                }
+            });
+        }
+
+        //Jquery validations
+        jQuery.validator.addMethod("decimalPrice", function (value, element) {
+            return this.optional(element) || /^\d{0,4}(\.\d{0,2})?$/i.test(value);
+        }, "El formato correcto del precio es #.##");
+
+        $("#container").validate({
+            rules: {
+                P_name: {
+                    required: true
+                },
+                P_description: {
+                    required: true
+                },
+                Price: {
+                    required: true,
+                    decimalPrice: true
+                },
+                Stock: {
+                    required: true,
+                    number: true
+                }
+            },
+            messages: {
+                P_name: "- El campo Nombre es obligatorio",
+                P_description: "- El campo Descripción es obligatorio",
+                Price: { required: "- El campo Precio es obligatorio", decimalPrice: "El formato correcto del precio es #.##" },
+                Stock: { required: "- El campo Stock es obligatorio", number: "- Debe ingresar solo número en el Stock" }
+            },
+            errorElement: "div",
+            errorLabelContainer: ".alert-danger"
+        });
+
         //Function to open the Create/Edit Modal
         function OpenModal(json) {
             if (json != null) {
-                $("#txtId").val(json.BrandId);
-                $("#txtDescription").val(json.B_description);
+                $("#errorMessage").hide();
+                $("#txtId").val(json.ProductId);
+                $("#txtName").val(json.P_name);
+                $("#txtDescription").val(json.P_description);
+                $("#cbxBrand").val(json.oBrand.BrandId);
+                $("#cbxCategory").val(json.oCategory.CategoryId);
+                $("#txtPrice").val(json.Price);
+                $("#txtStock").val(json.Stock);
                 $("#cbxActive").val(json.Active == true ? 1 : 0);
+
+                jQuery.ajax({
+                    url: '@Url.Action("ProductImage", "Mantainer")',
+                    type: "POST",
+                    data: JSON.stringify({ productId: json.ProductId }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $("#product_img").LoadingOverlay("hide");
+
+                        if (data.conversion) {
+                            $("#product_img").attr({ "src": "data:image/" + data.extension + ";base64," + data.base64Text });
+                        }
+                    },
+                    error: function (error) {
+                        $("#product_img").LoadingOverlay("hide");
+
+                        $("#errorMessage").show();
+                        $("#errorMessage").text("Error al mostrar imagen");
+                    },
+                    beforeSend: function () {
+                        $("#product_img").LoadingOverlay("show", {
+                            imageResizeFactor: 2,
+                            size: 50,
+                            image: "",
+                            fontawesome: "fa fa-cog fa-spin"
+                        });
+                    }
+                });
             } else {
+                $("#errorMessage").hide();
+
                 $("#txtId").val(0);
+                $("#product_img").removeAttr("src");
+                $("#productFile").val("");
+                $("#txtName").val("");
                 $("#txtDescription").val("");
+                $("#cbxBrand").val($("#cbxBrand option:first").val());
+                $("#cbxCategory").val($("#cbxCategory option:first").val());
+                $("#txtPrice").val("");
+                $("#txtStock").val("");
                 $("#cbxActive").val(1);
             }
-
-            $("#errorMessage").hide();
 
             $("#FormModal").modal("show");
         }
 
         //Funcion called by onclick event to edit Brand
-        $("#brandsTable tbody").on("click", '.btn-edit', function () {
+        $("#productsTable tbody").on("click", '.btn-edit', function () {
             selectedRow = $(this).closest("tr");
-            let data = $("#brandsTable").DataTable().row(selectedRow).data();
+            let data = $("#productsTable").DataTable().row(selectedRow).data();
             OpenModal(data);
         });
 
         //Funcion called by onclick event to delete Brand
-        $("#brandsTable tbody").on("click", '.btn-delete', function () {
-            let selectedBrand = $(this).closest("tr");
-            let data = $("#brandsTable").DataTable().row(selectedBrand).data();
+        $("#productsTable tbody").on("click", '.btn-delete', function () {
+            let selectedProduct = $(this).closest("tr");
+            let data = $("#productsTable").DataTable().row(selectedProduct).data();
 
             swal({
                 title: "Está Seguro?",
-                text: "¿Desea eliminar la marca?",
+                text: "¿Desea eliminar el producto?",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-primary",
@@ -215,15 +353,15 @@
             },
                 function () {
                     jQuery.ajax({
-                        url: '@Url.Action("DeleteBrand", "Mantainer")',
+                        url: '@Url.Action("DeleteProduct", "Mantainer")',
                         type: "POST",
-                        data: JSON.stringify({ brandId: data.BrandId }),
+                        data: JSON.stringify({ productId: data.ProductId }),
                         dataType: "json",
                         contentType: "application/json; charset=utf-8",
                         success: function (data) {
                             $(".main-body").LoadingOverlay("hide");
                             if (data.result) {
-                                $("#brandsTable").DataTable().row(selectedRow).remove().draw();
+                                $("#productsTable").DataTable().row(selectedProduct).remove().draw();
                             } else {
                                 swal("No se puede eliminar", data.message, "error");
                             }
@@ -248,40 +386,62 @@
 
         //Function to send data to DB and Update the View's table
         function Save() {
-            var Brand = {
-                BrandId: $("#txtId").val(),
-                B_description: $("#txtDescription").val(),
+            if (!$("#container").valid()) {
+                return;
+            }
+
+            let selectedImage = $("#productFile")[0].files[0];
+
+            let Product = {
+                ProductId: $("#txtId").val(),
+                P_name: $("#txtName").val(),
+                P_description: $("#txtDescription").val(),
+                oBrand: {
+                    BrandId: $("#cbxBrand option:selected").val(),
+                    B_description: $("#cbxBrand option:selected").text(),
+                },
+                oCategory: {
+                    CategoryId: $("#cbxCategory option:selected").val(),
+                    C_description: $("#cbxCategory option:selected").text(),
+                },
+                PriceStr: $("#txtPrice").val(),
+                Price: $("#txtPrice").val(),
+                Stock: $("#txtStock").val(),
                 Active: $("#cbxActive").val() == 1 ? true : false
             }
 
+            let request = new FormData();
+            request.append("strObject", JSON.stringify(Product));
+            request.append("imageFile", selectedImage);
+
             jQuery.ajax({
-                url: '@Url.Action("SaveBrand", "Mantainer")',
+                url: '@Url.Action("SaveProduct", "Mantainer")',
                 type: "POST",
-                data: JSON.stringify({ obj: Brand }),
-                dataType: "json",
-                contentType: "application/json; charset=utf-8",
+                data: request,
+                processData: false,
+                contentType: false,
                 success: function (data) {
                     $(".modal-dialog").LoadingOverlay("hide");
 
-                    //New Brand
-                    if (Brand.BrandId == 0) {
-                        if (data.result != 0) {
+                    //New Product
+                    if (Product.ProductId == 0) {
+                        if (data.generatedId != 0) {
                             $("#errorMessage").hide();
 
-                            Brand.BrandId = data.result;
-                            $("#brandsTable").DataTable().row.add(Brand).draw(false);
+                            Product.ProductId = data.generatedId;
+                            $("#productsTable").DataTable().row.add(Product).draw(false);
 
                             $("#FormModal").modal("hide");
                         } else {
                             $("#errorMessage").text(data.message);
                             $("#errorMessage").show();
                         }
-                    //Edit Brand
+                    //Edit Product
                     } else {
-                        if (data.result == true) {
+                        if (data.successfulOp) {
                             $("#errorMessage").hide();
 
-                            $("#brandsTable").DataTable().row(selectedRow).data(Brand).draw(false);
+                            $("#productsTable").DataTable().row(selectedRow).data(Product).draw(false);
 
                             selectedRow = null;
                             $("#FormModal").modal("hide");

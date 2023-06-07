@@ -170,7 +170,7 @@
                         success: function (data) {
                             $(".main-body").LoadingOverlay("hide");
                             if (data.result) {
-                                $("#brandsTable").DataTable().row(selectedRow).remove().draw();
+                                $("#brandsTable").DataTable().row(selectedBrand).remove().draw();
                             } else {
                                 swal("No se puede eliminar", data.message, "error");
                             }
