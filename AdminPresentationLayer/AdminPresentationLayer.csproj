@@ -551,6 +551,7 @@
     <Content Include="Views\Mantainer\Product.cshtml" />
     <Content Include="Views\Access\Index.cshtml" />
     <Content Include="Views\Access\ChangePass.cshtml" />
+    <Content Include="Views\Access\Reset.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

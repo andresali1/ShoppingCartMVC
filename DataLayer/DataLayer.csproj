@@ -45,6 +45,7 @@
     <Compile Include="Conection.cs" />
     <Compile Include="DL_Brand.cs" />
     <Compile Include="DL_Category.cs" />
+    <Compile Include="DL_Client.cs" />
     <Compile Include="DL_Product.cs" />
     <Compile Include="DL_Report.cs" />
     <Compile Include="DL_User.cs" />

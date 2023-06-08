@@ -10,6 +10,7 @@ using System.Web.Mvc;
 
 namespace AdminPresentationLayer.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         // GET: Home

@@ -12,6 +12,7 @@ using System.Web.Mvc;
 
 namespace AdminPresentationLayer.Controllers
 {
+    [Authorize]
     public class MantainerController : Controller
     {
         // GET: Mantainer

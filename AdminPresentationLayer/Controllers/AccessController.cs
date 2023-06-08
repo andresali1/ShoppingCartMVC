@@ -2,6 +2,7 @@
 using EntityLayer;
 using System;
 using System.Linq;
+using System.Web.Security;
 using System.Web.Mvc;
 
 namespace AdminPresentationLayer.Controllers
@@ -20,6 +21,7 @@ namespace AdminPresentationLayer.Controllers
             return View();
         }
 
+        // GET: Reset
         public ActionResult Reset()
         {
             return View();
@@ -52,11 +54,21 @@ namespace AdminPresentationLayer.Controllers
                     return RedirectToAction("ChangePass");
                 }
 
+                FormsAuthentication.SetAuthCookie(oUser.Email, false);
+
                 ViewBag.Error = null;
                 return RedirectToAction("Index", "Home");
             }
         }
 
+        /// <summary>
+        /// Method to change a selfgenerated password
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="currentPass">Actual password</param>
+        /// <param name="newPass">New password</param>
+        /// <param name="newPassConfirm">new password confirmation</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult ChangePass(string userId, string currentPass, string newPass, string newPassConfirm)
         {
@@ -95,6 +107,49 @@ namespace AdminPresentationLayer.Controllers
                 ViewBag.Error = message;
                 return View();
             }
+        }
+
+        /// <summary>
+        /// Method to reset forgotten password
+        /// </summary>
+        /// <param name="email">User's email</param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Reset(string email)
+        {
+            App_User oUser = new App_User();
+
+            oUser = new BL_User().GetUsers().Where(u => u.Email == email).FirstOrDefault();
+
+            if(oUser == null)
+            {
+                ViewBag.Error = "No se encontró un usuario relacionado a ese correo";
+                return View();
+            }
+
+            string message = string.Empty;
+            bool response = new BL_User().ResetPassword(oUser.UserId, email, out message);
+
+            if (response)
+            {
+                ViewBag.Error = null;
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.Error = message;
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// Method to close session
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Index");
         }
     }
 }
