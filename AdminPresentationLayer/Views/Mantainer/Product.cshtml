@@ -239,9 +239,11 @@
         }
 
         //Jquery validations
+        /*
         jQuery.validator.addMethod("decimalPrice", function (value, element) {
             return this.optional(element) || /^\d{0,4}(\.\d{0,2})?$/i.test(value);
         }, "El formato correcto del precio es #.##");
+        */
 
         $("#container").validate({
             rules: {
@@ -252,8 +254,8 @@
                     required: true
                 },
                 Price: {
-                    required: true,
-                    decimalPrice: true
+                    required: true
+                    //decimalPrice: true
                 },
                 Stock: {
                     required: true,
@@ -263,7 +265,8 @@
             messages: {
                 P_name: "- El campo Nombre es obligatorio",
                 P_description: "- El campo Descripción es obligatorio",
-                Price: { required: "- El campo Precio es obligatorio", decimalPrice: "El formato correcto del precio es #.##" },
+                //Price: { required: "- El campo Precio es obligatorio", decimalPrice: "El formato correcto del precio es #.##" },
+                Price: { required: "- El campo Precio es obligatorio"},
                 Stock: { required: "- El campo Stock es obligatorio", number: "- Debe ingresar solo número en el Stock" }
             },
             errorElement: "div",

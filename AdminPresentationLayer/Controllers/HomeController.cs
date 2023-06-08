@@ -1,6 +1,11 @@
 ﻿using BusinessLayer;
+using ClosedXML.Excel;
 using EntityLayer;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
 using System.Web.Mvc;
 
 namespace AdminPresentationLayer.Controllers
@@ -67,6 +72,84 @@ namespace AdminPresentationLayer.Controllers
             response = new BL_User().DeleteUser(userId, out message);
 
             return Json(new { result = response, message }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to get a sales report of given data
+        /// </summary>
+        /// <param name="beginDate">Min date to search to</param>
+        /// <param name="endDate">Max date to search to</param>
+        /// <param name="transactionId">Id of the transaction</param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult GetSalesReport(string beginDate, string endDate, string transactionId)
+        {
+            List<Report> oList = new List<Report>();
+
+            oList = new BL_Report().GetSalesReport(beginDate, endDate, transactionId);
+            return Json(new { data = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to get the report for the dashboard
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult DashboardView()
+        {
+            Dashboard obj = new BL_Report().GetDashboardReport();
+            return Json(new { result = obj }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to generate an Excel document with the Sale report the user searched
+        /// </summary>
+        /// <param name="beginDate">Min date searched</param>
+        /// <param name="endDate">Max date searched</param>
+        /// <param name="transactionId">Id of transaction</param>
+        /// <returns></returns>
+        [HttpPost]
+        public FileResult ExportSale(string beginDate, string endDate, string transactionId)
+        {
+            List<Report> oList = new List<Report>();
+            oList = new BL_Report().GetSalesReport(beginDate, endDate, transactionId);
+
+            DataTable dt = new DataTable();
+
+            dt.Locale = new CultureInfo("es-CO");
+            dt.Columns.Add("Fecha Venta", typeof(string));
+            dt.Columns.Add("Cliente", typeof(string));
+            dt.Columns.Add("Producto", typeof(string));
+            dt.Columns.Add("Precio", typeof(decimal));
+            dt.Columns.Add("Cantidad", typeof(int));
+            dt.Columns.Add("Total", typeof(decimal));
+            dt.Columns.Add("Id Transacción", typeof(string));
+
+            foreach(Report rp in oList)
+            {
+                dt.Rows.Add(new object[] {
+                    rp.SaleDate
+                    ,rp.R_client
+                    ,rp.R_product
+                    ,rp.Price
+                    ,rp.Amount
+                    ,rp.Total
+                    ,rp.TransactionId
+                });
+            }
+
+            dt.TableName = "Datos";
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "ReporteVenta" + DateTime.Now.ToString() + ".xlsx");
+                }
+            }
         }
     }
 }

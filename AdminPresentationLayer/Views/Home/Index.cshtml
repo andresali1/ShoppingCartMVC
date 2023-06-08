@@ -53,3 +53,139 @@
         </div>
     </div>
 </div>
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-tags me-1"></i>
+        Historial de Ventas
+    </div>
+    <div class="card-body">
+        <form action="@Url.Action("ExportSale", "Home")" method="post">
+            <div class="row align-items-end">
+                <div class="col-sm-2">
+                    <div class="mb-2">
+                        <label class="form-label">Fecha de Inicio:</label>
+                        <input class="form-control" type="text" id="txtBeginDate" name="beginDate" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="mb-2">
+                        <label class="form-label">Fecha Fin:</label>
+                        <input class="form-control" type="text" id="txtEndDate" name="endDate" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="mb-2">
+                        <label class="form-label">Id Transacción:</label>
+                        <input class="form-control" type="text" id="txtTransactionId" name="transactionId" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-primary" id="btnSearch" type="button"><i class="fas fa-search"></i> Buscar</button>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="d-grid mb-2">
+                        <button class="btn btn-success" type="submit"><i class="fas fa-file-excel"></i> Exportar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <hr />
+
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="homeTable" class="display cell-border" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Fecha Venta</th>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th>ID Transacción</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#txtBeginDate").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate', new Date());
+            $("#txtEndDate").datepicker({ dateFormat: 'dd/mm/yy' }).datepicker('setDate', new Date());
+            GetDashboardInfo();
+            GetReportInfo();
+        });
+
+        //Function to get the dasboard data
+        function GetDashboardInfo() {
+            jQuery.ajax({
+                url: '@Url.Action("DashboardView", "Home")',
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var object = data.result;
+                    $("#ClientTotal").text(object.ClientTotal);
+                    $("#SaleTotal").text(object.SaleTotal);
+                    $("#ProductTotal").text(object.ProductTotal);
+                }
+            });
+        }
+
+        //Function to get the sales table report info
+        function GetReportInfo() {
+            let url = '@Url.Action("GetSalesReport", "Home")' +
+                "?beginDate=" + $("#txtBeginDate").val() +
+                "&endDate=" + $("#txtEndDate").val() +
+                "&transactionId=" + $("#txtTransactionId").val();
+
+            $("#homeTable").DataTable({
+                responsive: true,
+                ordering: false,
+                "ajax": {
+                    url: url,
+                    type: "GET",
+                    dataType: "json"
+                },
+                "columns": [
+                    {
+                        "data": "SaleDate"
+                    },
+                    {
+                        "data": "R_client"
+                    },
+                    {
+                        "data": "R_product"
+                    },
+                    {
+                        "data": "Price"
+                    },
+                    {
+                        "data": "Amount"
+                    },
+                    {
+                        "data": "Total"
+                    },
+                    {
+                        "data": "TransactionId"
+                    },
+                ],
+                "language": {
+                    "url": 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json',
+                },
+            });
+        }
+
+        //two six
+        $("#btnSearch").on("click", function () {
+            GetReportInfo();
+        })
+    </script>
+}

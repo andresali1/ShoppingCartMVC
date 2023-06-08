@@ -18,7 +18,8 @@ namespace AdminPresentationLayer
                         "~/Scripts/DataTables/dataTables.responsive.js",
                         "~/Scripts/loadingoverlay/loadingoverlay.min.js",
                         "~/Scripts/sweetalert.min.js",
-                        "~/Scripts/jquery.validate.js"));
+                        "~/Scripts/jquery.validate.js",
+                        "~/Scripts/jquery-ui.js"));
 
             /*
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -37,7 +38,8 @@ namespace AdminPresentationLayer
                 "~/Content/site.css",
                 "~/Content/DataTables/css/jquery.dataTables.css",
                 "~/Content/DataTables/css/responsive.dataTables.css",
-                "~/Content/sweetalert.css"));
+                "~/Content/sweetalert.css",
+                "~/Content/jquery-ui.css"));
         }
     }
 }
