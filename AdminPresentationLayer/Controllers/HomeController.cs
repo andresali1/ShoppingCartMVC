@@ -12,11 +12,13 @@ namespace AdminPresentationLayer.Controllers
 {
     public class HomeController : Controller
     {
+        // GET: Home
         public ActionResult Index()
         {
             return View();
         }
 
+        // GET: Users
         public ActionResult Users()
         {
             return View();

@@ -21,7 +21,7 @@ namespace DataLayer
                 //using (SqlConnection oConection = new SqlConnection(Conection.connStr.Replace(@"\\", @"\")))
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
-                    string query = "SELECT UserId, U_name, U_surname, Email, Active FROM APP_USER";
+                    string query = "SELECT UserId, U_name, U_surname, Email, Pass, IsReset, Active FROM APP_USER";
 
                     SqlCommand cmd = new SqlCommand(query, oConnection);
                     cmd.CommandType = CommandType.Text;
@@ -38,6 +38,8 @@ namespace DataLayer
                                 ,U_name = dr["U_name"].ToString()
                                 ,U_surname = dr["U_surname"].ToString()
                                 ,Email = dr["Email"].ToString()
+                                ,Pass = dr["Pass"].ToString()
+                                ,IsReset = Convert.ToBoolean(dr["IsReset"])
                                 ,Active = Convert.ToBoolean(dr["Active"])
                             });
                         }
@@ -158,6 +160,80 @@ namespace DataLayer
                 using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
                 {
                     SqlCommand cmd = new SqlCommand("DELETE TOP(1) FROM APP_USER WHERE UserId = @UserId", oConnection);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConnection.Open();
+
+                    result = cmd.ExecuteNonQuery() > 0 ? true : false;
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Method to change user's password
+        /// </summary>
+        /// <param name="userId">User's Id</param>
+        /// <param name="newPass">Given new pass</param>
+        /// <param name="Message">Out param with message</param>
+        /// <returns></returns>
+        public bool ChangePassword(int userId, string newPass, out string Message)
+        {
+            bool result = false;
+            Message = string.Empty;
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("UPDATE APP_USER SET Pass = @newPass, IsReset = 0 WHERE UserId = @UserId", oConnection);
+                    cmd.Parameters.AddWithValue("@newPass", newPass);
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConnection.Open();
+
+                    result = cmd.ExecuteNonQuery() > 0 ? true : false;
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Method to reset the user's password
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="pass">New random pass</param>
+        /// <param name="Message">Out param with message</param>
+        /// <returns></returns>
+        public bool ResetPassword(int userId, string pass, out string Message)
+        {
+            bool result = false;
+            Message = string.Empty;
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    SqlCommand cmd = new SqlCommand("UPDATE APP_USER SET Pass = @pass, IsReset = 1 WHERE UserId = @UserId", oConnection);
+                    cmd.Parameters.AddWithValue("@pass", pass);
                     cmd.Parameters.AddWithValue("@UserId", userId);
                     cmd.CommandType = CommandType.Text;
 

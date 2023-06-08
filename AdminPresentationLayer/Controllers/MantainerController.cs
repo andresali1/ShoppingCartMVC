@@ -20,11 +20,13 @@ namespace AdminPresentationLayer.Controllers
             return View();
         }
 
+        // GET: Brand
         public ActionResult Brand()
         {
             return View();
         }
 
+        // GET: Product
         public ActionResult Product()
         {
             return View();

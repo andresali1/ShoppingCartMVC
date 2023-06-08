@@ -110,5 +110,55 @@ namespace BusinessLayer
         {
             return oDataLayer.DeleteUser(userId, out Message);
         }
+
+        /// <summary>
+        /// Method to change user's password
+        /// </summary>
+        /// <param name="userId">User's Id</param>
+        /// <param name="newPass">Given new pass</param>
+        /// <param name="Message">Out param with message</param>
+        /// <returns></returns>
+        public bool ChangePassword(int userId, string newPass, out string Message)
+        {
+            return oDataLayer.ChangePassword(userId, newPass, out Message);
+        }
+
+        /// <summary>
+        /// Method to reset the user's password
+        /// </summary>
+        /// <param name="userId">Id of the user</param>
+        /// <param name="pass">New random pass</param>
+        /// <param name="Message">Out param with message</param>
+        /// <returns></returns>
+        public bool ResetPassword(int userId, string userEmail, out string Message)
+        {
+            Message = string.Empty;
+            string newPass = BL_Resources.GeneratePass();
+            bool result = oDataLayer.ResetPassword(userId, BL_Resources.Sha256Converter(newPass), out Message);
+
+            if (result)
+            {
+                string subject = "Contraseña Reestablecida CarritoC";
+                string email_message = "<h3>Su cuenta fue reestablecida correctamente</h3></br><p>Su contraseña para acceder ahora es: !pass!</p>";
+                email_message = email_message.Replace("!pass!", newPass);
+
+                bool response = BL_Resources.SendEmail(userEmail, subject, email_message);
+
+                if (response)
+                {
+                    return true;
+                }
+                else
+                {
+                    Message = "No se pudo enviar el correo";
+                    return false;
+                }
+            }
+            else
+            {
+                Message = "No se pudo reestablecer la contraseña";
+                return false;
+            }
+        }
     }
 }
