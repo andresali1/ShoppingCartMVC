@@ -191,6 +191,7 @@ namespace StorePresentationLayer.Controllers
         /// <returns></returns>
         public ActionResult Logout()
         {
+            Session["Client"] = null;
             FormsAuthentication.SignOut();
             return RedirectToAction("Index");
         }
