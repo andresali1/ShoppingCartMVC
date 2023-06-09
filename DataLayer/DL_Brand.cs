@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
+using System.Text;
 
 namespace DataLayer
 {
@@ -172,6 +173,55 @@ namespace DataLayer
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Method to get all brands by id of the category
+        /// </summary>
+        /// <param name="categoryId">Id of the category</param>
+        /// <returns></returns>
+        public List<Brand> GetBrandsByCategory(int categoryId)
+        {
+            List<Brand> list = new List<Brand>();
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.AppendLine("SELECT DISTINCT B.BrandId, B.B_description FROM PRODUCT P");
+                    sb.AppendLine("INNER JOIN CATEGORY C ON C.CategoryId = P.CategoryId");
+                    sb.AppendLine("INNER JOIN BRAND B ON B.BrandId = P.BrandId AND B.Active = 1");
+                    sb.AppendLine("WHERE C.CategoryId = IIF(@categoryId = 0, C.CategoryId, @categoryId)");
+
+                    SqlCommand cmd = new SqlCommand(sb.ToString(), oConnection);
+                    cmd.Parameters.AddWithValue("@categoryId", categoryId);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConnection.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            list.Add(new Brand()
+                            {
+                                BrandId = Convert.ToInt32(dr["BrandId"])
+                                ,B_description = dr["B_description"].ToString()
+                            });
+                        }
+                    }
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                list = new List<Brand>();
+            }
+
+            return list;
         }
     }
 }

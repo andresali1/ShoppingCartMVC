@@ -81,5 +81,15 @@ namespace BusinessLayer
         {
             return oDataLayer.DeleteBrand(brandId, out Message);
         }
+
+        /// <summary>
+        /// Method to get all brands by id of the category
+        /// </summary>
+        /// <param name="categoryId">Id of the category</param>
+        /// <returns></returns>
+        public List<Brand> GetBrandsByCategory(int categoryId)
+        {
+            return oDataLayer.GetBrandsByCategory(categoryId);
+        }
     }
 }

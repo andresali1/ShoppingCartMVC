@@ -21,7 +21,7 @@ namespace AdminPresentationLayer
                         "~/Scripts/jquery.validate.js",
                         "~/Scripts/jquery-ui.js"));
 
-            /*
+
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
@@ -29,7 +29,7 @@ namespace AdminPresentationLayer
             // para la producción, use la herramienta de compilación disponible en https://modernizr.com para seleccionar solo las pruebas que necesite.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
-            */
+
 
             bundles.Add(new Bundle("~/bundles/bootstrap").Include(
                       "~/Scripts/bootstrap.bundle.js"));

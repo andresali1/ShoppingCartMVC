@@ -230,6 +230,7 @@
     <Content Include="Views\Access\ChangePass.cshtml" />
     <Content Include="Scripts\loadingoverlay.min.js.map" />
     <Content Include="Views\Store\Index.cshtml" />
+    <Content Include="Views\Store\ProductDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
