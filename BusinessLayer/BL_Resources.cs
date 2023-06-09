@@ -10,8 +10,19 @@ namespace BusinessLayer
 {
     public class BL_Resources
     {
-        private static string emailSmtp = ConfigurationManager.AppSettings["EmailSmtp"].ToString();
-        private static string passSmtp = ConfigurationManager.AppSettings["PassSmtp"].ToString();
+        /// <summary>
+        /// Method to get smtp credentials
+        /// </summary>
+        /// <returns></returns>
+        private static string[] GetSmtpCredentials()
+        {
+            string[] credentials = new string[2];
+
+            credentials[0] = ConfigurationManager.AppSettings["EmailSmtp"].ToString();
+            credentials[1] = ConfigurationManager.AppSettings["PassSmtp"].ToString();
+
+            return credentials;
+        }
 
         /// <summary>
         /// Method to generate a Random Password
@@ -57,19 +68,20 @@ namespace BusinessLayer
         public static bool SendEmail(string email, string subject, string message)
         {
             bool result = false;
+            string[] smtpCredentials = GetSmtpCredentials();
 
             try
             {
                 MailMessage mail = new MailMessage();
                 mail.To.Add(email);
-                mail.From = new MailAddress(emailSmtp);
+                mail.From = new MailAddress(smtpCredentials[0]);
                 mail.Subject = subject;
                 mail.Body = message;
                 mail.IsBodyHtml = true;
 
                 var smtp = new SmtpClient()
                 {
-                    Credentials = new NetworkCredential(emailSmtp, passSmtp),
+                    Credentials = new NetworkCredential(smtpCredentials[0], smtpCredentials[1]),
                     Host = "smtp.gmail.com",
                     Port = 587,
                     EnableSsl = true
