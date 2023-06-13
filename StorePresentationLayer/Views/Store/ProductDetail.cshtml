@@ -23,9 +23,8 @@
 
                     @if (Session["Client"] != null)
                     {
-                        <button class="btn btn-success addcart flex-shrink-0 w-50" type="button">
-                            <i class="bi-cart-fill me-1"></i>
-                            Add to cart
+                        <button class="btn btn-success addcart flex-shink-0 w-50" type="button" data-productId="@Html.DisplayTextFor(m => m.ProductId)">
+                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
                         </button>
                     }
                 </div>
@@ -34,3 +33,26 @@
     </div>
 </section>
 
+@section scripts{
+    <script>
+        $(document).on("click", "button.addcart", function () {
+            jQuery.ajax({
+                url: '@Url.Action("AddToCart", "Store")',
+                type: "POST",
+                data: JSON.stringify({ productId: $(this).attr("data-productId") }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    debugger;
+                    if (data.response) {
+                        ShowProductCartAmount();
+
+                        swal("", "Agregado al Carrito", "success");
+                    } else {
+                        swal("", data.message, "warning");
+                    }
+                }
+            });
+        })
+    </script>
+}

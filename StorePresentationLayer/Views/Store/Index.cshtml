@@ -250,5 +250,35 @@
 
             ShowProducts(_categoryId, _brandId);
         });
+
+        $(document).on("click", "button.addcart", function () {
+            jQuery.ajax({
+                url: '@Url.Action("AddToCart", "Store")',
+                type: "POST",
+                data: JSON.stringify({ productId: $(this).data("productId") }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.response) {
+                        ShowProductCartAmount();
+
+                        swal({
+                            title: "Agregado al carrito",
+                            text: "¿Desea ir al carrito?",
+                            type: "success",
+                            showCancelButton: true,
+                            confirmButtonClass: "btn-primary",
+                            confirmButtonText: "Si",
+                            cancelButtonText: "No",
+                            closeOnConfirm: true
+                        }, function () {
+                            window.location.href = '@Url.Action("ShoppingCart", "Store")';
+                        });
+                    } else {
+                        swal("", data.message, "warning");
+                    }
+                }
+            });
+        })
     </script>
 }

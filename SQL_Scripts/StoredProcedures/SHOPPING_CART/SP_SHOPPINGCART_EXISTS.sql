@@ -1,0 +1,16 @@
+USE DBSHOPPING_CART
+GO
+
+CREATE PROC SP_SHOPPINGCART_EXISTS (
+	@ClientId INT
+	,@ProductId INT
+	,@Result BIT OUTPUT
+)
+AS
+BEGIN
+	IF EXISTS(SELECT * FROM SHOPPING_CART WHERE ClientId = @ClientId AND ProductId = @ProductId)
+		SET @Result = 1
+	ELSE
+		SET @Result = 0
+END
+GO

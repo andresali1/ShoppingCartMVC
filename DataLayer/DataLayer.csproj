@@ -48,6 +48,7 @@
     <Compile Include="DL_Client.cs" />
     <Compile Include="DL_Product.cs" />
     <Compile Include="DL_Report.cs" />
+    <Compile Include="DL_ShoppingCart.cs" />
     <Compile Include="DL_User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
