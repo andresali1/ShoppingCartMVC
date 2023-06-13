@@ -4,6 +4,5 @@
     {
         public int TownId { get; set; }
         public string T_description { get; set; }
-        public int DepartmentId { get; set; }
     }
 }

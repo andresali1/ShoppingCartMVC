@@ -46,6 +46,7 @@
     <Compile Include="DL_Brand.cs" />
     <Compile Include="DL_Category.cs" />
     <Compile Include="DL_Client.cs" />
+    <Compile Include="DL_Location.cs" />
     <Compile Include="DL_Product.cs" />
     <Compile Include="DL_Report.cs" />
     <Compile Include="DL_ShoppingCart.cs" />

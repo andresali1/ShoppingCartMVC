@@ -45,6 +45,7 @@
     <Compile Include="BL_Brand.cs" />
     <Compile Include="BL_Category.cs" />
     <Compile Include="BL_Client.cs" />
+    <Compile Include="BL_Location.cs" />
     <Compile Include="BL_Product.cs" />
     <Compile Include="BL_Report.cs" />
     <Compile Include="BL_Resources.cs" />

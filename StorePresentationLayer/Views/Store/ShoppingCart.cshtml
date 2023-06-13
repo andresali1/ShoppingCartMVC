@@ -1,0 +1,263 @@
+﻿
+@{
+    ViewBag.Title = "ShoppingCart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <!--Product Detail-->
+                        <div class="col-sm-9">
+                            <div class="me-2">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="ms-2 mt-2">Detalle Carrito</h5>
+                                    <a class="btn btn-primary" href="@Url.Action("Index", "Store")"><i class="fas fa-cart-plus"></i> Seguir comprando</a>
+                                </div>
+
+                                <hr class="mt-2 mb-2" />
+
+                                <div id="cart-products">
+                                </div>
+
+                                <div class="d-flex justify-content-end">
+                                    <label class="align-self-center"><b>Total: $ <span id="total"></span></b></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Shipping Detail-->
+                        <div class="col-sm-3">
+                            <div class="card">
+                                <div class="card-body bg-light">
+                                    <h5 class="card-title">Detalle Envío</h5>
+                                    <form>
+                                        <div class="mb-2">
+                                            <label for="cbxDepartment" class="form-label">Departamento: </label>
+                                            <select class="form-select form-select-sm" id="cbxDepartment"></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="cbxTown" class="form-label">Ciudad: </label>
+                                            <select class="form-select form-select-sm" id="cbxTown"></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="cbxTownLocation" class="form-label">Localidad: </label>
+                                            <select class="form-select form-select-sm" id="cbxTownLocation"></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txtcontactName" class="form-label">Nombre Contacto: </label>
+                                            <input type="text" class="form-control form-control-sm" id="txtcontactName" autocomplete="off" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txtcontactadress" class="form-label">Dirección: </label>
+                                            <input type="text" class="form-control form-control-sm" id="txtcontactadress" autocomplete="off" />
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="txtcontactphone" class="form-label">Teléfono: </label>
+                                            <input type="text" class="form-control form-control-sm" id="txtcontactphone" autocomplete="off" />
+                                        </div>
+                                        <div class="d-grid">
+                                            <button class="btn btn-success" type="button">
+                                                <i class="fab fa-paypal"></i> Terminar y Procesar Pago
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            GetShoppingCartProducts();
+            GetDepartmentList();
+        });
+
+        //Function to get all the products added to the shopping cart
+        function GetShoppingCartProducts() {
+            jQuery.ajax({
+                url: '@Url.Action("GetShoppingCartProducts", "Store")',
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    $("#cart-products").html("");
+
+                    $("#cart-products").LoadingOverlay("hide");
+
+                    if (response.data) {
+                        $.each(response.data, function (index, item) {
+                            $("<div>").addClass("card mb-2 card-product").append(
+                                $("<div>").addClass("card-body").append(
+                                    $("<div>").addClass("row").append(
+                                        $("<div>").addClass("col-sm-2 align-self-center d-flex justify-content-center").append(
+                                            $("<img>").addClass("rounded").attr({ "src": "data:image/" + item.oProduct.Extension + ";base64," + item.oProduct.Base64, "alt": "...", "style": "width: 100px; height: 100px" })
+                                        ),
+                                        $("<div>").addClass("col-sm-4 align-self-center").append(
+                                            $("<span>").text(item.oProduct.oBrand.B_description).addClass("font-weight-bold d-block"),
+                                            $("<span>").text(item.oProduct.P_name)
+                                        ),
+                                        $("<div>").addClass("col-sm-2 align-self-center").append(
+                                            $("<span>").text("$ " + item.oProduct.Price)
+                                        ),
+                                        $("<div>").addClass("col-sm-2 align-self-center").append(
+                                            $("<div>").addClass("d-flex").append(
+                                                $("<button>").addClass("btn btn-outline-secondary btn-minus rounded-0").append(
+                                                    $("<i>").addClass("fas fa-minus")
+                                                ),
+                                                $("<input>").addClass("form-control input-amount p-1 text-center rounded-0").attr({ "disabled": "disabled", "style": "width: 40px;" }).data("oProduct", item.oProduct)
+                                                    .val(item.Amount),
+                                                $("<button>").addClass("btn btn-outline-secondary btn-add rounded-0").append(
+                                                    $("<i>").addClass("fas fa-plus")
+                                                )
+                                            )
+                                        ),
+                                        $("<div>").addClass("col-sm-2 align-self-center").append(
+                                            $("<button>").addClass("btn btn-outline-danger btn-delete").append(
+                                                $("<i>").addClass("fas fa-trash-alt"),
+                                                " Eliminar"
+                                            )
+                                        )
+                                    )
+                                )
+                            ).appendTo("#cart-products");
+                        });
+
+                        AddTotal();
+                    }
+                },
+                error: function (error) {
+                    swal("", error.message, "warning");
+                },
+                beforeSend: function () {
+                    $("#cart-products").LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 50,
+                        image: "",
+                        fontawesome: "fa fa-cog fa-spin"
+                    });
+                }
+            });
+        }
+
+        //Function to Add the prices of the products in the shopping cart
+        function AddTotal() {
+            let addTotal = parseFloat(0);
+
+            $("input.input-amount").each(function (i) {
+                let price = $(this).data("oProduct").Price;
+                let amount = parseFLoat($(this).val());
+
+                let subTotal = price * amount;
+
+                addTotal += subTotal;
+            })
+
+            $("#total").text(addTotal.toFixed(0));
+            $("#total").data("addTotal", addTotal);
+        }
+
+        //Function to get all the departments
+        function GetDepartmentList() {
+            $("<option>").attr({ "value": "00", "disabled": "disabled", "selected": "true"  }).text("Seleccionar").appendTo("#cbxDepartment");
+
+            jQuery.ajax({
+                url: '@Url.Action("GetDepartmentList", "Store")',
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.list) {
+                        $.each(data.list, function (index, item) {
+                            $("<option>").attr({ "value": item.DepartmentId }).text(item.D_description).appendTo("#cbxDepartment");
+                        })
+
+                        GetTownListByDepartment();
+                        GetTownLocationListByTown();
+                    }
+                },
+                error: function (error) {
+                    swal("", error.message, "warning");
+                }
+            });
+        }
+
+        $("#cbxDepartment").on("change", function () {
+            if ($("#cbxDepartment option:selected").val() != "00") {
+                GetTownListByDepartment();
+            }
+        })
+
+        //Function to get all the towns by Department Id
+        function GetTownListByDepartment() {
+            $("#cbxTown").html("");
+
+            $("<option>").attr({ "value": "00", "disabled": "disabled", "selected": "true" }).text("Seleccionar").appendTo("#cbxTown");
+
+            if ($("#cbxDepartment option:selected").val() != "00") {
+                jQuery.ajax({
+                    url: '@Url.Action("GetTownListByDepartmentId", "Store")',
+                    type: "POST",
+                    data: JSON.stringify({ departmentId: $("#cbxDepartment option:selected").val() }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.list) {
+                            $.each(data.list, function (index, item) {
+                                $("<option>").attr({ "value": item.TownId }).text(item.T_description).appendTo("#cbxTown");
+                            })
+
+                            GetTownLocationListByTown();
+                        }
+                    },
+                    error: function (error) {
+                        swal("", error.message, "warning");
+                    }
+                });
+            }
+        }
+
+        $("#cbxTown").on("change", function () {
+            if ($("#cbxTown option:selected").val() != "00") {
+                GetTownLocationListByTown();
+            }
+        })
+
+        //Function to get all the Town Locations by Town Id
+        function GetTownLocationListByTown() {
+            $("#cbxTownLocation").html("");
+
+            $("<option>").attr({ "value": "00", "disabled": "disabled", "selected": "true" }).text("Seleccionar").appendTo("#cbxTownLocation");
+
+            if ($("#cbxTown option:selected").val() != "00") {
+                jQuery.ajax({
+                    url: '@Url.Action("GetTownLocationListByTownId", "Store")',
+                    type: "POST",
+                    data: JSON.stringify({ townId: $("#cbxTown option:selected").val() }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.list) {
+                            $.each(data.list, function (index, item) {
+                                $("<option>").attr({ "value": item.LocationId }).text(item.L_description).appendTo("#cbxTownLocation");
+                            })
+                        }
+                    },
+                    error: function (error) {
+                        swal("", error.message, "warning");
+                    }
+                });
+            }
+        }
+    </script>
+}

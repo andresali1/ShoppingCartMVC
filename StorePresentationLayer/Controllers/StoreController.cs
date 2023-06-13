@@ -1,5 +1,4 @@
-﻿using Antlr.Runtime.Misc;
-using BusinessLayer;
+﻿using BusinessLayer;
 using EntityLayer;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +31,12 @@ namespace StorePresentationLayer.Controllers
             }
 
             return View(oProduct);
+        }
+
+        // GET: ShoppingCart
+        public ActionResult ShoppingCart()
+        {
+            return View();
         }
 
         /// <summary>
@@ -123,7 +128,7 @@ namespace StorePresentationLayer.Controllers
             }
             else
             {
-                response = new BL_ShoppingCart().AddToCart(clientId, productId, true, out message);
+                response = new BL_ShoppingCart().ManageProductCartAmount(clientId, productId, true, out message);
             }
 
             return Json(new { response, message }, JsonRequestBehavior.AllowGet);
@@ -146,7 +151,7 @@ namespace StorePresentationLayer.Controllers
         /// Method to get all products in a Client's ShoppingCart
         /// </summary>
         /// <returns></returns>
-        [HttpPost]
+        [HttpGet]
         public JsonResult GetShoppingCartProducts()
         {
             int clientId = ((Client)Session["Client"]).ClientId;
@@ -210,6 +215,51 @@ namespace StorePresentationLayer.Controllers
             response = new BL_ShoppingCart().DeleteCartProduct(clientId, productId);
 
             return Json(new { response, message }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to gel all the departments
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult GetDepartmentList()
+        {
+            List<Department> oList = new List<Department>();
+
+            oList = new BL_Location().GetDepartmentList();
+
+            //return Json(new { list = oList }, JsonRequestBehavior.AllowGet);
+            return Json(new { list = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to get all the towns by Department Id
+        /// </summary>
+        /// <param name="departmentId">Id of the department</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult GetTownListByDepartmentId(int departmentId)
+        {
+            List<Town> oList = new List<Town>();
+
+            oList = new BL_Location().GetTownListByDepartmentId(departmentId);
+
+            return Json(new { list = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to get all the Town location by Town Id
+        /// </summary>
+        /// <param name="townId">Id of the Town</param>
+        /// <returns></returns>
+        [HttpPost]
+        public JsonResult GetTownLocationListByTownId(int townId)
+        {
+            List<Town_Location> oList = new List<Town_Location>();
+
+            oList = new BL_Location().GetTownLocationListByTownId(townId);
+
+            return Json(new { list = oList }, JsonRequestBehavior.AllowGet);
         }
     }
 }

@@ -218,13 +218,13 @@
                                     $("<div>").addClass("text-center").append(
                                         $("<div>").addClass("d-grid gap-2").append(
                                             @if (Session["Client"] != null)
-                                        {
-                                            @:$("<button>").addClass("btn btn-success mt-auto addcart").data("productId", element.ProductId).text("Agregar a Carrito"),
-                                        }
+                                            {
+                                                @:$("<button>").addClass("btn btn-success mt-auto addcart").data("productId", element.ProductId).text("Agregar a Carrito"),
+                                            }
 
-                                        $("<a>").addClass("btn btn-dark mt-auto")
-                                            .attr({ "href": '@Url.Action("ProductDetail", "Store")' + "?productId=" + element.ProductId })
-                                            .text("Ver detalle")
+                                            $("<a>").addClass("btn btn-dark mt-auto")
+                                                .attr({ "href": '@Url.Action("ProductDetail", "Store")' + "?productId=" + element.ProductId })
+                                                .text("Ver detalle")
                                         )
                                     )
                                 )
