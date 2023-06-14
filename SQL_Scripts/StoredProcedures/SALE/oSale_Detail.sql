@@ -1,0 +1,8 @@
+USE DBSHOPPING_CART
+GO
+
+CREATE TYPE [dbo].[oSale_Detail] AS TABLE(
+	[ProductId] INT NULL
+	,[Amount] INT NULL
+	,[Total] DECIMAL(18,2) NULL
+)

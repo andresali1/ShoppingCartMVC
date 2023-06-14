@@ -49,6 +49,7 @@
     <Compile Include="DL_Location.cs" />
     <Compile Include="DL_Product.cs" />
     <Compile Include="DL_Report.cs" />
+    <Compile Include="DL_Sale.cs" />
     <Compile Include="DL_ShoppingCart.cs" />
     <Compile Include="DL_User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

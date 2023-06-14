@@ -69,10 +69,10 @@
 
     <script>
         $(document).ready(function () {
-            ShowProductCartAmount();
+            ShowProductCartItems();
         })
 
-        function ShowProductCartAmount() {
+        function ShowProductCartItems() {
             if ($("#cartamount").length > 0) {
                 jQuery.ajax({
                     url: '@Url.Action("AmountInCart", "Store")',

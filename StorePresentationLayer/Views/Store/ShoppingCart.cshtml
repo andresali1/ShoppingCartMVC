@@ -52,15 +52,15 @@
                                             <input type="text" class="form-control form-control-sm" id="txtcontactName" autocomplete="off" />
                                         </div>
                                         <div class="mb-2">
-                                            <label for="txtcontactadress" class="form-label">Dirección: </label>
-                                            <input type="text" class="form-control form-control-sm" id="txtcontactadress" autocomplete="off" />
+                                            <label for="txtcontactaddress" class="form-label">Dirección: </label>
+                                            <input type="text" class="form-control form-control-sm" id="txtcontactaddress" autocomplete="off" />
                                         </div>
                                         <div class="mb-2">
                                             <label for="txtcontactphone" class="form-label">Teléfono: </label>
                                             <input type="text" class="form-control form-control-sm" id="txtcontactphone" autocomplete="off" />
                                         </div>
                                         <div class="d-grid">
-                                            <button class="btn btn-success" type="button">
+                                            <button class="btn btn-success" type="button" onclick="DoPayment()">
                                                 <i class="fab fa-paypal"></i> Terminar y Procesar Pago
                                             </button>
                                         </div>
@@ -125,17 +125,18 @@
                                             $("<button>").addClass("btn btn-outline-danger btn-delete").append(
                                                 $("<i>").addClass("fas fa-trash-alt"),
                                                 " Eliminar"
-                                            )
+                                            ).data("productId", item.oProduct.ProductId)
                                         )
                                     )
                                 )
                             ).appendTo("#cart-products");
                         });
-
-                        AddTotal();
                     }
+
+                    AddTotal();
                 },
                 error: function (error) {
+                    $("#cart-products").LoadingOverlay("hide");
                     swal("", error.message, "warning");
                 },
                 beforeSend: function () {
@@ -156,12 +157,12 @@
 
             $("input.input-amount").each(function (i) {
                 let price = $(this).data("oProduct").Price;
-                let amount = parseFLoat($(this).val());
+                let amount = parseFloat($(this).val());
 
                 let subTotal = price * amount;
 
                 addTotal += subTotal;
-            })
+            });
 
             $("#total").text(addTotal.toFixed(0));
             $("#total").data("addTotal", addTotal);
@@ -258,6 +259,178 @@
                     }
                 });
             }
+        }
+
+        //Event to add amount to shopping cart
+        $(document).on("click", ".btn-add", function () {
+            let container_div = $(this).parent("div.d-flex");
+
+            let amount_input = $(container_div).find("input.input-amount");
+
+            let btn = $(this);
+
+            let productId = $(amount_input).data("oProduct").ProductId;
+
+            jQuery.ajax({
+                url: '@Url.Action("ManageProductCartAmount", "Store")',
+                type: "POST",
+                data: JSON.stringify({ productId, add: true }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $(btn).LoadingOverlay("hide");
+
+                    if (data.response) {
+                        let amount = parseInt($(amount_input).val()) + 1;
+                        $(amount_input).val(amount);
+                        AddTotal();
+                    } else {
+                        swal("", data.message, "warning");
+                    }
+                },
+                error: function (error) {
+                    $(btn).LoadingOverlay("hide");
+                    swal("", error.message, "warning");
+                },
+                beforeSend: function () {
+                    $(btn).LoadingOverlay("show");
+                }
+            });
+        })
+
+        //Event to deduct amount to shopping cart
+        $(document).on("click", ".btn-minus", function () {
+            let container_div = $(this).parent("div.d-flex");
+
+            let amount_input = $(container_div).find("input.input-amount");
+
+            let btn = $(this);
+
+            let productId = $(amount_input).data("oProduct").ProductId;
+
+            let amount = parseInt($(amount_input).val()) - 1;
+
+            if (amount >= 1) {
+                jQuery.ajax({
+                    url: '@Url.Action("ManageProductCartAmount", "Store")',
+                    type: "POST",
+                    data: JSON.stringify({ productId, add: false }),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $(btn).LoadingOverlay("hide");
+
+                        if (data.response) {
+                            $(amount_input).val(amount);
+                            ShowProductCartItems();
+                            AddTotal();
+                        } else {
+                            swal("", data.message, "warning");
+                        }
+                    },
+                    error: function (error) {
+                        $(btn).LoadingOverlay("hide");
+                        swal("", error.message, "warning");
+                    },
+                    beforeSend: function () {
+                        $(btn).LoadingOverlay("show");
+                    }
+                });
+            }
+        })
+
+        //Event to delete a product of the shopping cart
+        $(document).on("click", ".btn-delete", function () {
+            let productId = $(this).data("productId");
+
+            let product_card = $(this).parents("div.card-product");
+
+            jQuery.ajax({
+                url: '@Url.Action("DeleteCartProduct", "Store")',
+                type: "POST",
+                data: JSON.stringify({ productId }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.response) {
+                        product_card.remove();
+
+                        ShowProductCartItems();
+
+                        AddTotal();
+                    } else {
+                        swal("", data.message, "warning");
+                    }
+                },
+                error: function (error) {
+                    swal("", error.message, "warning");
+                }
+            });
+        })
+
+        //Function to make the payment
+        function DoPayment() {
+            if (parseInt($("#cartamount").text()) == 0) {
+                swal("", "No hay productos en el carrito", "warning");
+                return;
+            }
+
+            if ($("#cbxTownLocation").val() == null || $("#txtcontactName").val() == "" || $("#txtcontactaddress").val() == "" || $("#txtcontactphone").val() == "") {
+                swal("", "Debe completar todos los datos de detalle envío", "warning");
+                return;
+            }
+
+            let oSale = {
+                ProductAmount: $("input.input-amount").length,
+                Total: 0,
+                Contact: $("#txtcontactName").val(),
+                LocationId: $("#cbxTownLocation").val(),
+                PhoneNumber: $("#txtcontactphone").val(),
+                S_address: $("#txtcontactaddress").val()
+            }
+
+            let cart_list = [];
+
+            $("input.input-amount").each(function (i) {
+                let product = $(this).data("oProduct");
+                let amount = parseFloat($(this).val());
+
+                cart_list.push({
+                    oProduct: product,
+                    Amount: amount
+                });
+            });
+
+            jQuery.ajax({
+                url: '@Url.Action("PaymentProcess", "Store")',
+                type: "POST",
+                data: JSON.stringify({ oListShoppingCart: cart_list, oSale }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $.LoadingOverlay("hide");
+
+                    if (data.Status) {
+                        window.location.href = data.Link;
+                    }
+                    else {
+                        swal("", "Vuelva a intentarlo más tarde", "warning");
+                    }
+                },
+                error: function (error) {
+                    $.LoadingOverlay("hide");
+                    swal("", "Ha ocurrido un error", "warning");
+                },
+                beforeSend: function () {
+                    $.LoadingOverlay("show", {
+                        imageResizeFactor: 2,
+                        text: "Cargando...",
+                        size: 50,
+                        image: "",
+                        fontawesome: "fa fa-cog fa-spin"
+                    });
+                }
+            });
         }
     </script>
 }

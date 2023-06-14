@@ -1,10 +1,15 @@
 ﻿using BusinessLayer;
 using EntityLayer;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Services.Description;
+using System.Web.Util;
 
 namespace StorePresentationLayer.Controllers
 {
@@ -193,7 +198,7 @@ namespace StorePresentationLayer.Controllers
 
             string message = string.Empty; 
 
-            response = new BL_ShoppingCart().ManageProductCartAmount(clientId, productId, true, out message);
+            response = new BL_ShoppingCart().ManageProductCartAmount(clientId, productId, add, out message);
 
             return Json(new { response, message }, JsonRequestBehavior.AllowGet);
         }
@@ -260,6 +265,72 @@ namespace StorePresentationLayer.Controllers
             oList = new BL_Location().GetTownLocationListByTownId(townId);
 
             return Json(new { list = oList }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Method to process payment
+        /// </summary>
+        /// <param name="oListShoppingCart">List of Shopping Cart Type object with data</param>
+        /// <param name="oSale">Sale object type with Sale data</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<JsonResult> PaymentProcess(List<Shopping_Cart> oListShoppingCart, Sale oSale)
+        {
+            decimal total = 0;
+
+            DataTable sale_details = new DataTable();
+            sale_details.Locale = new CultureInfo("es-CO");
+            sale_details.Columns.Add("ProductId", typeof(string));
+            sale_details.Columns.Add("Amount", typeof(int));
+            sale_details.Columns.Add("Total", typeof(decimal));
+
+            foreach(Shopping_Cart oCart in oListShoppingCart)
+            {
+                decimal subTotal = Convert.ToDecimal(oCart.Amount.ToString()) * oCart.oProduct.Price;
+
+                total += subTotal;
+
+                sale_details.Rows.Add(new object[]
+                {
+                    oCart.oProduct.ProductId,
+                    oCart.Amount,
+                    subTotal
+                });
+            }
+
+            oSale.Total = total;
+            oSale.ClientId = ((Client)Session["Client"]).ClientId;
+
+            TempData["Sale"] = oSale;
+            TempData["Sale_Details"] = sale_details;
+
+            return Json(new { Status = true, Link = "/Store/PayDone?transactionId=code0001&status=true" }, JsonRequestBehavior.AllowGet);
+        }
+
+        // GET: PayDone
+        public async Task<ActionResult> PayDone()
+        {
+            string transactionId = Request.QueryString["transactionId"];
+            bool status = Convert.ToBoolean(Request.QueryString["status"]);
+
+            ViewData["Status"] = status;
+
+            if (status)
+            {
+                Sale oSale = (Sale)TempData["Sale"];
+
+                DataTable sale_details = (DataTable)TempData["Sale_Details"];
+
+                oSale.TransactionId = transactionId;
+
+                string message = string.Empty;
+
+                bool response = new BL_Sale().RegisterSale(oSale, sale_details, out message);
+
+                ViewData["TransactionId"] = oSale.TransactionId;
+            }
+
+            return View();
         }
     }
 }
