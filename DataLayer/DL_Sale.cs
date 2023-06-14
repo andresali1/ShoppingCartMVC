@@ -2,6 +2,8 @@
 using System.Data.SqlClient;
 using System.Data;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace DataLayer
 {
@@ -54,6 +56,58 @@ namespace DataLayer
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Method to get the sale record of a client
+        /// </summary>
+        /// <param name="clientId">Id of the Client</param>
+        /// <returns></returns>
+        public List<Sale_Details> GetSaleRecord(int clientId)
+        {
+            List<Sale_Details> list = new List<Sale_Details>();
+
+            try
+            {
+                using (SqlConnection oConnection = new SqlConnection(Conection.connStr))
+                {
+                    string query = "SELECT * FROM FN_CON_SALE(@ClientId)";
+
+                    SqlCommand cmd = new SqlCommand(query, oConnection);
+                    cmd.Parameters.AddWithValue("@ClientId", clientId);
+                    cmd.CommandType = CommandType.Text;
+
+                    oConnection.Open();
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            list.Add(new Sale_Details()
+                            {
+                                oProduct = new Product()
+                                {
+                                    P_name = dr["P_name"].ToString()
+                                    ,Price = Convert.ToDecimal(dr["Price"], new CultureInfo("es-CO"))
+                                    ,ImageRoute = dr["ImageRoute"].ToString()
+                                    ,ImageName = dr["ImageName"].ToString()
+                                }
+                                ,Amount = Convert.ToInt32(dr["Amount"])
+                                ,Total = Convert.ToDecimal(dr["Total"], new CultureInfo("es-CO"))
+                                ,TransactionId = dr["TransactionId"].ToString()
+                            });
+                        }
+                    }
+
+                    oConnection.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                list = new List<Sale_Details>();
+            }
+
+            return list;
         }
     }
 }

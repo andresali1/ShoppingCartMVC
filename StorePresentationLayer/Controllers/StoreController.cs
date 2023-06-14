@@ -1,5 +1,6 @@
 ﻿using BusinessLayer;
 using EntityLayer;
+using StorePresentationLayer.Filter;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,8 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using System.Web.Services.Description;
-using System.Web.Util;
 
 namespace StorePresentationLayer.Controllers
 {
@@ -38,6 +37,8 @@ namespace StorePresentationLayer.Controllers
             return View(oProduct);
         }
 
+        [SessionValidation]
+        [Authorize]
         // GET: ShoppingCart
         public ActionResult ShoppingCart()
         {
@@ -307,6 +308,8 @@ namespace StorePresentationLayer.Controllers
             return Json(new { Status = true, Link = "/Store/PayDone?transactionId=code0001&status=true" }, JsonRequestBehavior.AllowGet);
         }
 
+        [SessionValidation]
+        [Authorize]
         // GET: PayDone
         public async Task<ActionResult> PayDone()
         {
@@ -331,6 +334,34 @@ namespace StorePresentationLayer.Controllers
             }
 
             return View();
+        }
+
+        [SessionValidation]
+        [Authorize]
+        // GET: MyShopping
+        public ActionResult MyShopping()
+        {
+            int clientId = ((Client)Session["Client"]).ClientId;
+
+            List<Sale_Details> oList = new List<Sale_Details>();
+
+            bool conversion;
+
+            oList = new BL_Sale().GetSaleRecord(clientId).Select(oc => new Sale_Details()
+            {
+                oProduct = new Product()
+                {
+                    P_name = oc.oProduct.P_name
+                    ,Price = oc.oProduct.Price
+                    ,Base64 = BL_Resources.Base64Converter(Path.Combine(oc.oProduct.ImageRoute, oc.oProduct.ImageName), out conversion)
+                    ,Extension = Path.GetExtension(oc.oProduct.ImageName)
+                }
+                ,Amount = oc.Amount
+                ,Total = oc.Total
+                ,TransactionId = oc.TransactionId
+            }).ToList();
+
+            return View(oList);
         }
     }
 }

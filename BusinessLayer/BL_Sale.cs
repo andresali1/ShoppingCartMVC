@@ -1,5 +1,6 @@
 ﻿using DataLayer;
 using EntityLayer;
+using System.Collections.Generic;
 using System.Data;
 
 namespace BusinessLayer
@@ -18,6 +19,16 @@ namespace BusinessLayer
         public bool RegisterSale(Sale obj, DataTable saleDetail, out string Message)
         {
             return oDataLayer.RegisterSale(obj, saleDetail, out Message);
+        }
+
+        /// <summary>
+        /// Method to get the sale record of a client
+        /// </summary>
+        /// <param name="clientId">Id of the Client</param>
+        /// <returns></returns>
+        public List<Sale_Details> GetSaleRecord(int clientId)
+        {
+            return oDataLayer.GetSaleRecord(clientId);
         }
     }
 }

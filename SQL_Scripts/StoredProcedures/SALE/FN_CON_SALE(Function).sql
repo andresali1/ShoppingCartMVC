@@ -1,0 +1,16 @@
+USE DBSHOPPING_CART
+GO
+
+CREATE FUNCTION FN_CON_SALE (
+	@ClientId INT
+) RETURNS TABLE
+AS
+RETURN
+(
+	SELECT P.ImageRoute, P.ImageName, P.P_name, P.Price, SD.Amount, SD.Total, S.TransactionId
+	FROM SALE_DETAILS SD
+	INNER JOIN PRODUCT P ON P.ProductId = SD.ProductId
+	INNER JOIN SALE S ON S.SaleId = SD.SaleId
+	WHERE S.ClientId = @ClientId
+)
+GO
