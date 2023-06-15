@@ -1,2 +1,8 @@
 # ShoppingCartMVC
-Web project emulating a shopping cart e-commerce using c#, sqlserver, .net framework 4.7 and visual studio 2019
+Projecto Web que emula un e-commerce de venta de productos por categorías, tiene dos proyectos a ejecutar, uno como administrador de negocio y otro para clientes
+
+# Tecnologías Utilizadas
+:keyboard: C# 8
+:keyboard: .Net Framework 4.7.2
+:minidisc: SqlServer 2019
+:computer: Visual Studio 2019
