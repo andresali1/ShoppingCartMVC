@@ -9,13 +9,13 @@ Projecto Web que emula un e-commerce de venta de productos por categorías, tien
 
 ### :open_book: Configuración  
 :one: En una carpeta del sistema ejecutar el comando :arrow_forward: git clone https://github.com/andresali1/ShoppingCartMVC.git  
-:two: Dentro de la carpeta "ShoppingCartMVC" abrir la carpeta "SQL_Scripts" y usando SQLServer:  
-:three: Proyectos para ejecutar:  
-:four: Revizar Web.Config:  
-:five:  Ejecución:  
+:two: Dentro de la carpeta "ShoppingCartMVC" abrir la carpeta "SQL_Scripts" y usando SQLServer:
 * Ejecutar primero el archivo "DDL_DB_TablesCreation.sql"
 * Luego Ejecutar el archivo "DML_FirstInsertion.sql"
 * Finalmente Ejecutar todos los scripts dentro de las subcarpetas dentro de la carpeta "StoredProcedures", no importa el orden  
+:three: Proyectos para ejecutar:  
+:four: Revizar Web.Config:  
+:five:  Ejecución:  
 
 * "AdminPresentationLayer": Proyecto con interfaz para administrador de aplicación :arrow_forward: usuario default: test@example.com; contraseña default: test123.
 * "StorePresentationLayer": Proyecto con interfaz para usuarios de la aplicación  
