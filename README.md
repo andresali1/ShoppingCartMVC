@@ -13,7 +13,7 @@ Projecto Web que emula un e-commerce de venta de productos por categorías, tien
 * Ejecutar primero el archivo "DDL_DB_TablesCreation.sql"
 * Luego Ejecutar el archivo "DML_FirstInsertion.sql"
 * Finalmente Ejecutar todos los scripts dentro de las subcarpetas dentro de la carpeta "StoredProcedures", no importa el orden  
-:three: Proyectos para ejecutar:  
+:three: Proyectos para ejecutar:
 * "AdminPresentationLayer": Proyecto con interfaz para administrador de aplicación :arrow_forward: usuario default: test@example.com; contraseña default: test123.
 * "StorePresentationLayer": Proyecto con interfaz para usuarios de la aplicación  
 :four: Revizar Web.Config:  
