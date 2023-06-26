@@ -6,7 +6,7 @@ Projecto Web que emula un e-commerce de venta de productos por categorías, tien
 :keyboard: .Net Framework 4.7.2  
 :minidisc: SqlServer 2019  
 :computer: Visual Studio 2019  
-:cloud: Cloudinary -> Para Alamcenamiento de imágenes en la nube
+:cloud: Cloudinary -> Para Alamcenamiento de imágenes en la nube  
 :world_map: IpInfo -> para geolocalización del usuario
 
 ### :open_book: Configuración  
